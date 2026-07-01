@@ -121,7 +121,33 @@
   .wet{color:#7dd3fc}
   .lvbadge{display:inline-block;padding:2px 9px;border-radius:20px;color:#0b1220;font-size:12px;font-weight:700}
   .empty{color:var(--muted);text-align:center;padding:80px 24px;line-height:2}
-  @media(max-width:900px){.wrap{grid-template-columns:1fr;height:auto}}
+  /* ---------- 手機版：改上下堆疊、面板整寬、結果接續捲動 ---------- */
+  @media(max-width:760px){
+    header{padding:12px 14px}
+    header h1{font-size:17px}
+    header .sub{display:none}
+    .topbar{padding:9px 12px;gap:12px}
+    .topbar .lab{display:none}                 /* 標籤省略、按鈕自明 */
+    .seg button{padding:8px 11px;font-size:13px}
+    .spacer{flex-basis:100%;height:0}          /* 強制換行，讓查詢/匯出到下一排 */
+    #elem{min-width:88px}
+    .go{flex:1}                                 /* 查詢鍵放大好按 */
+
+    #stage{position:static;height:auto;overflow:visible;display:flex;flex-direction:column}
+    #map{position:static;inset:auto;height:46vh;min-height:280px;order:2}
+    .floatpanel{position:static;width:auto;max-height:none;margin:0;border:0;border-bottom:1px solid var(--line);
+      border-radius:0;box-shadow:none;background:var(--panel);backdrop-filter:none;-webkit-backdrop-filter:none;order:1}
+    .panel{padding:14px 14px 16px}
+    /* 結果抽屜：手機改成一般區塊接在下面，不用浮層 */
+    #sheet{position:static;transform:none;height:auto;border-radius:0;box-shadow:none;border-top:8px solid var(--bg);order:3}
+    #sheet .sheet-grab{display:none}
+    .sheet-body{padding:14px}
+    .chartbox{height:300px;padding:12px}
+    .legend{gap:8px}.lg{padding:7px 10px}
+    .tablebox{max-height:340px}
+    th,td{padding:6px 8px;font-size:12px}
+  }
+  @media(max-width:400px){ .seg button{padding:7px 8px;font-size:12px} .topbar{gap:8px} }
 </style>
 </head>
 <body>
