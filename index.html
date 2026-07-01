@@ -207,9 +207,10 @@
 <script>
 // 本機(serve.py)在 /web/index.html → ../data；GitHub Pages 放根目錄 → data
 const DATA_BASE = location.pathname.includes("/web/") ? "../data" : "data";
-// 非本機 = 靜態站(GitHub Pages)，沒有 serve.py 後端，逐時現抓不可用
+// 非本機 = 雲端(GitHub Pages)：逐時改打 Render 後端代抓
 const STATIC = !/^(localhost|127\.|0\.0\.0\.0|\[?::1)/.test(location.hostname);
-function hourStaticMsg(){ return `<div class="empty">🕐 <b>「逐時」需要本機版</b>（serve.py 即時向氣象署抓）。<br>雲端版請改用<b>逐日／逐月</b>——多要素、多站對比、跨年、災害分析都能用。</div>`; }
+const HOURLY_BASE = STATIC ? "https://tw-rainfall-api.onrender.com" : "";  // 雲端逐時後端
+function hourBackendMsg(){ return `<div class="empty">🕐 逐時後端沒有回應。<br>可能是免費後端<b>正在喚醒（首次約 30-60 秒）</b>，稍候再按一次查詢；<br>或後端尚未部署——本機版(serve.py)一定可用。</div>`; }
 const COLORS=["#38bdf8","#fb923c","#a78bfa","#34d399","#f472b6","#facc15","#60a5fa","#f87171"];
 // 要素：idx 對應 data/daily 陣列順序；agg=逐月彙總方式；chart=圖型
 const ELEMS=[
@@ -463,7 +464,12 @@ async function getDaily(id){
   return dailyCache[id].daily||{};
 }
 async function getHourMonth(id,ym){ const k=id+"|"+ym;
-  if(!hourlyCache[k]) hourlyCache[k]=(await fetch(`/api/hourly?id=${encodeURIComponent(id)}&month=${ym}`).then(r=>r.json()).catch(()=>({hourly:{}}))).hourly||{};
+  if(!hourlyCache[k]){
+    try{
+      const r=await fetch(`${HOURLY_BASE}/api/hourly?id=${encodeURIComponent(id)}&month=${ym}`,{signal:AbortSignal.timeout(75000)});
+      hourlyCache[k]=(await r.json()).hourly||{};
+    }catch(e){ hourBackendFailed=true; hourlyCache[k]={}; }
+  }
   return hourlyCache[k]; }
 function monthsBetween(s,e){const out=[];let y=+s.slice(0,4),m=+s.slice(5,7);const ey=+e.slice(0,4),em=+e.slice(5,7);
   while(y<ey||(y===ey&&m<=em)){out.push(`${y}-${pad(m)}`);m++;if(m>12){m=1;y++;}}return out;}
@@ -508,14 +514,17 @@ function buildSeries(){
   return {align:"offset", list:G.period.periods.map((p,i)=>({id:st.id,name:st.name,start:p.start,end:p.end,color:COLORS[i%8],label:p.start+"~"+p.end}))};
 }
 
+let hourBackendFailed=false;
+function hourLoadHint(){ return gran==="hour" ? (STATIC?"（雲端逐時首次可能等後端喚醒 30-60 秒…）":"（逐時向 CODiS 現抓，請稍候）") : ""; }
 async function runQuery(){
-  if(gran==="hour"&&STATIC){ $("#result").innerHTML=hourStaticMsg(); showSheet(); return; }
   if(mode==="disaster") return runDisaster();
   const {align,list}=buildSeries();
   if(!list.length){ $("#result").innerHTML=`<div class="empty">請先${mode==="multi"?"加入至少一個測站":"選測站並加入年份/時段"}。</div>`; showSheet(); return; }
-  $("#result").innerHTML=`<div class="empty">查詢中…${gran==="hour"?"（逐時向 CODiS 現抓，請稍候）":""}</div>`; showSheet();
+  hourBackendFailed=false;
+  $("#result").innerHTML=`<div class="empty">查詢中…${hourLoadHint()}</div>`; showSheet();
   const data=[];
   for(const sp of list){ const pts=await seriesPoints(sp); data.push({sp,pts,map:Object.fromEntries(pts)}); }
+  if(gran==="hour"&&hourBackendFailed){ $("#result").innerHTML=hourBackendMsg(); showSheet(); return; }
   renderResult(align,data);
 }
 
@@ -588,8 +597,10 @@ async function runDisaster(){
   const st=G.disaster.station;
   if(!st){ $("#result").innerHTML=`<div class="empty">請先選一個測站。</div>`; showSheet(); return; }
   const ths=curThresholds();
-  $("#result").innerHTML=`<div class="empty">掃描 ${st.name} 的「${curElem.name}」災害事件中…${gran==="hour"?"（逐時向 CODiS 現抓，較久）":""}</div>`; showSheet();
+  hourBackendFailed=false;
+  $("#result").innerHTML=`<div class="empty">掃描 ${st.name} 的「${curElem.name}」災害事件中…${hourLoadHint()}</div>`; showSheet();
   const pts=await seriesPoints({id:st.id,start:G.disaster.start,end:G.disaster.end});
+  if(gran==="hour"&&hourBackendFailed){ $("#result").innerHTML=hourBackendMsg(); showSheet(); return; }
   renderDisaster(st,pts,ths);
 }
 function renderDisaster(st,pts,ths){
