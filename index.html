@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台灣歷史雨量查詢</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/themes/dark.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/zh.js"></script>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --line:#334155; --line2:#3e4d68;
+    --ink:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --accent2:#0ea5e9; --green:#16a34a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+    background:var(--bg);color:var(--ink);font-size:15px}
+  header{padding:14px 22px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  header h1{font-size:19px;margin:0;font-weight:700}
+  header .sub{color:var(--muted);font-size:12.5px}
+
+  /* 頂部工具列：全域控制 */
+  .topbar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    padding:12px 22px;border-bottom:1px solid var(--line);background:#172033}
+  .tgrp{display:flex;align-items:center;gap:9px}
+  .tgrp .lab{font-size:12px;color:var(--muted)}
+  .seg{display:inline-flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden}
+  .seg button{padding:8px 14px;background:var(--panel2);border:0;color:var(--muted);cursor:pointer;font-size:13px}
+  .seg button.on{background:var(--accent2);color:#fff;font-weight:600}
+  .spacer{flex:1}
+  .go{padding:9px 22px;background:var(--accent);border:0;border-radius:9px;color:#04243a;font-weight:700;font-size:14px;cursor:pointer}
+  .go:hover{background:#7dd3fc}
+  .xbtn{padding:9px 16px;background:var(--green);border:0;border-radius:9px;color:#fff;cursor:pointer;font-size:13px;font-weight:600}
+  .xbtn:hover{background:#22c55e}
+  .xbtn[disabled]{opacity:.4;cursor:not-allowed}
+  .csv{padding:9px 14px;background:var(--panel2);border:1px solid var(--line2);border-radius:9px;color:var(--ink);cursor:pointer;font-size:13px}
+  .csv[disabled]{opacity:.4;cursor:not-allowed}
+
+  /* 舞台：地圖滿版當底，控制面板與結果面板浮在上面 */
+  #stage{position:relative;height:calc(100vh - 124px);overflow:hidden}
+  #map{position:absolute;inset:0;background:#1a2436;z-index:1}
+  .floatpanel{position:absolute;top:16px;left:16px;width:344px;max-height:calc(100% - 32px);
+    background:rgba(15,23,42,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--line2);border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.45);
+    z-index:500;display:flex;flex-direction:column;overflow:hidden}
+  .fp-head{padding:13px 18px;border-bottom:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink);
+    display:flex;align-items:center;gap:7px}
+  .fp-head .pin{font-size:15px}
+  .panel{padding:16px 18px;overflow:auto}
+
+  /* 結果底部抽屜 */
+  #sheet{position:absolute;left:0;right:0;bottom:0;z-index:600;background:var(--panel);
+    border-top:1px solid var(--line2);border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.5);
+    transform:translateY(101%);transition:transform .32s cubic-bezier(.4,0,.2,1);
+    display:flex;flex-direction:column;height:62vh}
+  #sheet.show{transform:translateY(0)}
+  #sheet.full{height:90vh}
+  .sheet-grab{position:relative;display:flex;align-items:center;gap:10px;padding:14px 22px 10px;border-bottom:1px solid var(--line);cursor:pointer;flex:0 0 auto}
+  .sheet-grab .bar{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:42px;height:4px;border-radius:3px;background:var(--line2)}
+  .sheet-title{font-size:14px;font-weight:600;flex:1}
+  .sheet-actions{display:flex;gap:8px}
+  .sheet-actions button{background:var(--panel2);border:1px solid var(--line2);color:var(--ink);border-radius:8px;cursor:pointer;font-size:13px;padding:6px 12px}
+  .sheet-actions button:hover{border-color:var(--accent)}
+  .sheet-body{padding:18px 24px;overflow:auto;flex:1;min-height:0}
+
+  .ptitle{font-size:13px;font-weight:600;color:var(--ink);margin:2px 0 12px;display:flex;align-items:center;gap:7px}
+  .ptitle .badge{font-size:11px;color:var(--muted);font-weight:400}
+  label{display:block;font-size:12px;color:var(--muted);margin:11px 0 5px}
+  label:first-of-type{margin-top:0}
+  select,input{width:100%;padding:9px 11px;background:var(--panel2);border:1px solid var(--line2);
+    border-radius:9px;color:var(--ink);font-size:14px}
+  .row{display:flex;gap:9px}.row>div{flex:1}
+  .addrow{display:flex;gap:8px;margin-top:8px}
+  .addrow .ico{flex:0 0 auto;padding:9px 14px;background:var(--panel2);border:1px solid var(--line2);
+    border-radius:9px;color:var(--accent);cursor:pointer;font-size:14px;font-weight:600}
+  .addrow .ico:hover{border-color:var(--accent)}
+
+  /* chips */
+  .chips{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+  .chip{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--panel);
+    border:1px solid var(--line2);border-radius:10px}
+  .chip .dot{width:11px;height:11px;border-radius:50%;flex:0 0 11px}
+  .chip .t{flex:1;font-size:13px;line-height:1.35;overflow:hidden}
+  .chip .t .sub{color:var(--muted);font-size:11px}
+  .chip .x{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:17px;line-height:1;padding:0 3px}
+  .chip .x:hover{color:#f87171}
+  .empty-chip{color:var(--muted);font-size:12px;padding:11px;border:1px dashed var(--line2);border-radius:10px;text-align:center;margin-top:10px}
+  .tip{color:var(--muted);font-size:11.5px;margin-top:10px;line-height:1.6}
+  /* flatpickr：吃滿寬、配深色 */
+  .flatpickr-input{cursor:pointer;background:var(--panel2)}
+  .flatpickr-calendar{background:#1e293b;box-shadow:0 8px 28px rgba(0,0,0,.5);border:1px solid var(--line2)}
+  .flatpickr-day{color:var(--ink)}
+  .flatpickr-day.inRange,.flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange{
+    background:var(--accent2);border-color:var(--accent2);box-shadow:none}
+  .flatpickr-day.inRange{background:#1e3a52;border-color:#1e3a52}
+  .flatpickr-months .flatpickr-month,.flatpickr-weekdays,span.flatpickr-weekday{color:var(--muted);fill:var(--muted)}
+  /* 測站群組泡泡：統一藍色系 */
+  .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(59,130,246,.32)!important}
+  .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:rgba(37,99,235,.9)!important;color:#fff!important;font-weight:600}
+
+  /* 右側結果 */
+  .legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+  .lg{display:flex;align-items:center;gap:8px;font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 13px}
+  .lg .dot{width:11px;height:11px;border-radius:50%}
+  .lg b{font-weight:600}.lg .s{color:var(--muted);font-size:11.5px}
+  .chartbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;height:clamp(300px,44vh,560px)}
+  .meta{color:var(--muted);font-size:12.5px;margin-bottom:10px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:7px 11px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--panel)}
+  thead th{position:sticky;top:0;background:var(--panel2);color:var(--muted);font-weight:600}
+  .tablebox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0 14px 14px;max-height:430px;overflow:auto}
+  .wet{color:#7dd3fc}
+  .lvbadge{display:inline-block;padding:2px 9px;border-radius:20px;color:#0b1220;font-size:12px;font-weight:700}
+  .empty{color:var(--muted);text-align:center;padding:80px 24px;line-height:2}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr;height:auto}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌧️ 台灣歷史雨量查詢</h1>
+  <span class="sub">中央氣象署 CODiS　·　全測站逐日／逐月／逐時</span>
+</header>
+
+<!-- 全域工具列 -->
+<div class="topbar">
+  <div class="tgrp">
+    <span class="lab">模式</span>
+    <div class="seg" id="mode">
+      <button data-m="multi" class="on">多站比較</button>
+      <button data-m="year">跨年同期</button>
+      <button data-m="period">多時段</button>
+      <button data-m="disaster">災害分析</button>
+    </div>
+  </div>
+  <div class="tgrp">
+    <span class="lab">要素</span>
+    <select id="elem" style="width:auto;min-width:104px;padding:8px 12px"></select>
+  </div>
+  <div class="tgrp">
+    <span class="lab">顆粒</span>
+    <div class="seg" id="gran">
+      <button data-g="day" class="on">逐日</button>
+      <button data-g="month">逐月</button>
+      <button data-g="hour">逐時</button>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <button class="csv" id="csv" disabled>CSV</button>
+  <button class="xbtn" id="xlsx" disabled>⬇ 匯出 Excel</button>
+  <button class="go" id="go">查詢</button>
+</div>
+
+<div id="stage">
+  <div id="map"></div>
+  <div class="floatpanel">
+    <div class="fp-head"><span class="pin">🎯</span> 選擇查詢條件</div>
+    <div class="panel" id="panel"><!-- 依模式動態 --></div>
+  </div>
+  <div id="sheet">
+    <div class="sheet-grab" id="sheetGrab">
+      <span class="bar"></span>
+      <span class="sheet-title" id="sheetTitle">查詢結果</span>
+      <span class="sheet-actions">
+        <button id="sheetToggle">展開 ⤢</button>
+        <button id="sheetClose">收起 ×</button>
+      </span>
+    </div>
+    <div class="sheet-body" id="result"></div>
+  </div>
+</div>
+
+<script>
+// 本機(serve.py)在 /web/index.html → ../data；GitHub Pages 放根目錄 → data
+const DATA_BASE = location.pathname.includes("/web/") ? "../data" : "data";
+// 非本機 = 靜態站(GitHub Pages)，沒有 serve.py 後端，逐時現抓不可用
+const STATIC = !/^(localhost|127\.|0\.0\.0\.0|\[?::1)/.test(location.hostname);
+function hourStaticMsg(){ return `<div class="empty">🕐 <b>「逐時」需要本機版</b>（serve.py 即時向氣象署抓）。<br>雲端版請改用<b>逐日／逐月</b>——多要素、多站對比、跨年、災害分析都能用。</div>`; }
+const COLORS=["#38bdf8","#fb923c","#a78bfa","#34d399","#f472b6","#facc15","#60a5fa","#f87171"];
+// 要素：idx 對應 data/daily 陣列順序；agg=逐月彙總方式；chart=圖型
+const ELEMS=[
+  {k:"p",    name:"雨量",   unit:"mm", idx:0, agg:"sum",  chart:"bar"},
+  {k:"tmax", name:"最高溫", unit:"°C", idx:1, agg:"max",  chart:"line"},
+  {k:"tmin", name:"最低溫", unit:"°C", idx:2, agg:"min",  chart:"line"},
+  {k:"tavg", name:"平均溫", unit:"°C", idx:3, agg:"mean", chart:"line"},
+  {k:"rh",   name:"濕度",   unit:"%",  idx:4, agg:"mean", chart:"line"},
+  {k:"pres", name:"氣壓",   unit:"hPa",idx:5, agg:"mean", chart:"line"},
+  {k:"wmean",name:"平均風速",unit:"m/s",idx:6, agg:"mean", chart:"line"},
+  {k:"gust", name:"最大陣風",unit:"m/s",idx:7, agg:"max",  chart:"line"},
+  {k:"wdir", name:"盛行風向",unit:"°",  idx:8, agg:"mean", chart:"line"},
+  {k:"sun",  name:"日照時數",unit:"hr", idx:9, agg:"sum",  chart:"bar"},
+];
+let curElem=ELEMS[0];
+// 災害門檻（氣象署官方）：dir 預設 above；溫度低溫為 below
+const THRESH={
+  p_day:[{v:80,l:"大雨",c:"#fde047"},{v:200,l:"豪雨",c:"#fb923c"},{v:350,l:"大豪雨",c:"#ef4444"},{v:500,l:"超大豪雨",c:"#c026d3"}],
+  p_hour:[{v:40,l:"大雨(時雨≥40)",c:"#fde047"},{v:100,l:"極端時雨≥100",c:"#ef4444"}],
+  gust:[{v:13.9,l:"7級強風",c:"#fde047"},{v:17.2,l:"8級",c:"#fb923c"},{v:24.5,l:"10級災害級",c:"#ef4444"},{v:32.7,l:"12級颶風",c:"#c026d3"}],
+  wmean:[{v:10.8,l:"6級風",c:"#fde047"},{v:17.2,l:"8級強風",c:"#fb923c"}],
+  tmax:[{v:36,l:"高溫黃燈",c:"#fb923c"},{v:38,l:"高溫紅燈",c:"#ef4444"}],
+  tmin:[{v:10,l:"低溫≤10°C",c:"#60a5fa",dir:"below"},{v:5,l:"嚴寒≤5°C",c:"#2563eb",dir:"below"}],
+};
+function curThresholds(){
+  if(curElem.k==="p") return gran==="hour"?THRESH.p_hour:THRESH.p_day;
+  return THRESH[curElem.k]||null;
+}
+function classify(val,ths){
+  if(typeof val!=="number"||!ths) return null;
+  let hit=null;
+  for(const t of ths){ const below=t.dir==="below";
+    if(below? val<=t.v : val>=t.v) hit=t; }
+  return hit;
+}
+let STATIONS=[], byId={}, counties=[];
+let mode="multi", gran="day";
+let chart=null, lastRender=null;
+const dailyCache={}, hourlyCache={};
+
+// 各模式狀態
+const G = {
+  multi:  { stations:[], start:"", end:"" },               // 多站、共用時間
+  year:   { station:null, tmplS:"", tmplE:"", years:[] },  // 範本期間(完整日期，只取月-日)
+  period: { station:null, periods:[], addS:"", addE:"" },  // [{start,end}]
+  disaster:{ station:null, start:"", end:"" },             // 單站+範圍 災害分析
+};
+
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,"0");
+const lastDayOf=ym=>{const[y,m]=ym.split("-").map(Number);return `${ym}-${pad(new Date(y,m,0).getDate())}`;};
+
+async function boot(){
+  try{ STATIONS=await (await fetch(`${DATA_BASE}/stations.json`)).json(); }
+  catch(e){ $("#result").innerHTML=`<div class="empty">讀不到測站清單。請用 <b>serve.py</b> 啟動伺服器後從 http://localhost 開啟。</div>`; return; }
+  byId=Object.fromEntries(STATIONS.map(s=>[s.id,s]));
+  counties=[...new Set(STATIONS.map(s=>s.county).filter(Boolean))].sort();
+  $("#elem").innerHTML=ELEMS.map((e,i)=>`<option value="${i}">${e.name}</option>`).join("");
+  $("#elem").onchange=ev=>{ curElem=ELEMS[+ev.target.value]; };
+  const t=new Date(), y=t.getFullYear();
+  G.multi.start=`${y-1}-${pad(t.getMonth()+1)}-01`;
+  G.multi.end=t.toISOString().slice(0,10);
+  G.year.years=[y-2,y-1,y];
+  G.year.tmplS=`${y-1}-06-01`; G.year.tmplE=`${y-1}-06-30`;
+  G.disaster.start=G.multi.start; G.disaster.end=G.multi.end;
+  initMap(); renderPanel();
+}
+
+/* ---------------- 地圖 ---------------- */
+let map,cluster,allMarkers=[],mapCounty=null;
+function initMap(){
+  map=L.map("map",{zoomControl:true}).setView([23.7,121],7);
+  const nlsc=L.tileLayer("https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}",
+    {attribution:"© 內政部國土測繪中心",maxZoom:18,maxNativeZoom:20});
+  const dark=L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    {attribution:"© OpenStreetMap, © CARTO",maxZoom:18});
+  nlsc.addTo(map);
+  L.control.layers({"中文地圖":nlsc,"暗色（英文）":dark},null,{position:"topright"}).addTo(map);
+  cluster=L.markerClusterGroup({maxClusterRadius:45});
+  allMarkers=[];
+  for(const s of STATIONS){
+    if(typeof s.lat!=="number") continue;
+    const m=L.circleMarker([s.lat,s.lon],{radius:5,color:"#1d4ed8",weight:1.4,fillColor:"#3b82f6",fillOpacity:.85});
+    m.bindTooltip(`${s.name}（${s.id}）<br>${s.county}`);
+    m.on("click",()=>mapPick(s.id));
+    allMarkers.push({county:s.county, lat:s.lat, lon:s.lon, m});
+  }
+  map.addLayer(cluster);
+  filterMapByCounty("");
+  setTimeout(()=>map.invalidateSize(),60);
+  window.addEventListener("resize",()=>map.invalidateSize());
+}
+// 依縣市篩選地圖站點 + 自動縮放，避免在密集處點錯
+function filterMapByCounty(county){
+  if(!cluster) return;
+  if(county===mapCounty) return;   // 沒變就不動，避免一直 reset 視野
+  mapCounty=county;
+  cluster.clearLayers();
+  const sel=allMarkers.filter(o=>!county||o.county===county);
+  cluster.addLayers(sel.map(o=>o.m));
+  if(county && sel.length){
+    map.fitBounds(L.latLngBounds(sel.map(o=>[o.lat,o.lon])).pad(0.15));
+  }else if(!county){
+    map.setView([23.7,121],7);
+  }
+}
+
+/* ---------------- 底部結果抽屜 ---------------- */
+function showSheet(){ $("#sheet").classList.add("show"); setTimeout(()=>chart&&chart.resize(),340); }
+function hideSheet(){ $("#sheet").classList.remove("show"); }
+$("#sheetClose").onclick=hideSheet;
+$("#sheetToggle").onclick=()=>{ const s=$("#sheet"); s.classList.toggle("full");
+  $("#sheetToggle").textContent = s.classList.contains("full")?"縮小 ⤡":"展開 ⤢";
+  setTimeout(()=>chart&&chart.resize(),340); };
+$("#sheetGrab").ondblclick=()=>$("#sheetToggle").click();
+function focusMap(id){ const s=byId[id]; if(s&&typeof s.lat==="number") map.setView([s.lat,s.lon],Math.max(map.getZoom(),10)); }
+function mapPick(id){
+  const s=byId[id];
+  if(mode==="multi"){ addMultiStation(id); }
+  else { G[mode].station={id,name:s.name,county:s.county}; renderPanel(); }
+  focusMap(id);
+}
+
+/* ---------------- 模式/顆粒切換 ---------------- */
+$("#mode").onclick=e=>{ if(e.target.tagName!=="BUTTON")return;
+  [...$("#mode").children].forEach(b=>b.classList.toggle("on",b===e.target));
+  mode=e.target.dataset.m; renderPanel(); };
+$("#gran").onclick=e=>{ if(e.target.tagName!=="BUTTON")return;
+  [...$("#gran").children].forEach(b=>b.classList.toggle("on",b===e.target));
+  gran=e.target.dataset.g; renderPanel(); };
+$("#go").onclick=runQuery;
+
+/* ---------------- 共用小工具 ---------------- */
+function countySelect(id,cur){ return `<select id="${id}"><option value="">— 全部縣市 —</option>`+
+  counties.map(c=>`<option ${c===cur?"selected":""}>${c}</option>`).join("")+`</select>`; }
+function stationInput(id,listId,county,val){
+  const opts=STATIONS.filter(x=>!county||x.county===county).map(x=>`<option value="${x.name}（${x.id}）">`).join("");
+  return `<input id="${id}" list="${listId}" placeholder="打字找站名或站號…" value="${val||""}">
+          <datalist id="${listId}">${opts}</datalist>`;
+}
+function resolveId(txt){ txt=(txt||"").trim();
+  let m=txt.match(/（(.+?)）\s*$/)||txt.match(/\((.+?)\)\s*$/);
+  if(m&&byId[m[1]])return m[1]; if(byId[txt])return txt;
+  const h=STATIONS.find(s=>s.name===txt); return h?h.id:null; }
+
+/* ---------------- 動態面板 ---------------- */
+let panelCounty="";   // 多站模式的縣市篩選暫存
+const hourNote = `<div class="tip">🕐 逐時：時間範圍會逐月向 CODiS 現抓，範圍越大越久，建議一次抓 1～3 個月。</div>`;
+function renderPanel(){
+  const isHour=gran==="hour";
+  let html="";
+  if(mode==="multi"){
+    html=`<div class="ptitle">① 選測站（可多個）<span class="badge">疊在同一張圖比較</span></div>
+      <label>縣市（縮小搜尋範圍）</label>${countySelect("mCty",panelCounty)}
+      <label>加入測站</label>
+      <div class="addrow">${stationInput("mStn","mDl",panelCounty,"")}<button class="ico" id="mAdd">＋</button></div>
+      ${chipsHtml(G.multi.stations.map((s,i)=>({color:COLORS[i%8],main:s.name,sub:s.id+" · "+s.county})),"已選","mChips")}
+      <div class="ptitle" style="margin-top:16px">② 時間範圍（所有站共用）</div>
+      <input class="fp" id="mRange" readonly placeholder="點選日期範圍">
+      <div class="tip">💡 地圖上點測站可直接加入，最多 8 站。</div>${isHour?hourNote:""}`;
+  }
+  else if(mode==="year"){
+    const st=G.year.station;
+    html=`<div class="ptitle">① 選一個測站<span class="badge">比不同年的同一期間</span></div>
+      <label>縣市</label>${countySelect("yCty",st?st.county:"")}
+      <label>測站</label>${stationInput("yStn","yDl",st?st.county:"",st?st.name+"（"+st.id+"）":"")}
+      <div class="ptitle" style="margin-top:16px">② 期間範本<span class="badge">只取月-日，套到每個年份</span></div>
+      <input class="fp" id="yRange" readonly placeholder="點選一段代表期間（如 6/1~6/30）">
+      <div class="ptitle" style="margin-top:16px">③ 要比的年份</div>
+      <div class="addrow"><input type="number" id="yAddYr" placeholder="例如 2023" min="1990" max="2026"><button class="ico" id="yAdd">＋</button></div>
+      ${chipsHtml(G.year.years.map((y,i)=>({color:COLORS[i%8],main:y+" 年",sub:""})),"年份","yChips")}${isHour?hourNote:""}`;
+  }
+  else if(mode==="period"){
+    const st=G.period.station;
+    html=`<div class="ptitle">① 選一個測站<span class="badge">比自訂的不同時段</span></div>
+      <label>縣市</label>${countySelect("pCty",st?st.county:"")}
+      <label>測站</label>${stationInput("pStn","pDl",st?st.county:"",st?st.name+"（"+st.id+"）":"")}
+      <div class="ptitle" style="margin-top:16px">② 加入時段（可多段）</div>
+      <div class="addrow"><input class="fp" id="pRange" readonly placeholder="點選一段時間" style="flex:1"><button class="ico" id="pAdd">＋</button></div>
+      ${chipsHtml(G.period.periods.map((p,i)=>({color:COLORS[i%8],main:p.start+" ~ "+p.end,sub:""})),"時段","pChips")}${isHour?hourNote:""}`;
+  }
+  else { // disaster
+    const st=G.disaster.station, ths=curThresholds();
+    const thHtml=ths? ths.map(t=>`<span style="color:${t.c}">${t.l} ${t.dir==="below"?"≤":"≥"}${t.v}${curElem.unit}</span>`).join("　") : "（此要素無官方災害門檻，請切雨量/陣風/氣溫）";
+    html=`<div class="ptitle">① 選一個測站<span class="badge">掃描災害事件</span></div>
+      <label>縣市</label>${countySelect("dCty",st?st.county:"")}
+      <label>測站</label>${stationInput("dStn","dDl",st?st.county:"",st?st.name+"（"+st.id+"）":"")}
+      <div class="ptitle" style="margin-top:16px">② 掃描範圍</div>
+      <input class="fp" id="dRange" readonly placeholder="點選日期範圍">
+      <div class="ptitle" style="margin-top:16px">③ 門檻（依上方要素：${curElem.name}）</div>
+      <div class="tip">${thHtml}</div>
+      <div class="tip">💡 切上方「要素」掃不同災害：雨量→豪雨等級、最大陣風→強風等級、最高溫→高溫、最低溫→低溫。</div>`;
+  }
+  $("#panel").innerHTML=html;
+  bindPanel();
+}
+// 建立 flatpickr 區間選擇器
+function fmtD(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function rangePicker(sel, defS, defE, onPick){
+  const el=$(sel); if(!el||!window.flatpickr) return;
+  flatpickr(el,{ mode:"range", locale:"zh", dateFormat:"Y-m-d",
+    defaultDate:(defS&&defE)?[defS,defE]:null,
+    onChange:(dates)=>{ if(dates.length===2) onPick(fmtD(dates[0]),fmtD(dates[1])); }});
+}
+function chipsHtml(items,title,cls){
+  if(!items.length) return `<div class="empty-chip">尚未加入</div>`;
+  return `<div class="chips" id="${cls}">`+items.map((it,i)=>`<div class="chip">
+    <span class="dot" style="background:${it.color}"></span>
+    <span class="t">${it.main}${it.sub?`<br><span class="sub">${it.sub}</span>`:""}</span>
+    <button class="x" data-i="${i}">×</button></div>`).join("")+`</div>`;
+}
+function bindPanel(){
+  if(mode==="multi"){
+    $("#mCty").onchange=e=>{panelCounty=e.target.value; filterMapByCounty(e.target.value); renderPanel();};
+    $("#mAdd").onclick=()=>{const id=resolveId($("#mStn").value); if(id) addMultiStation(id);};
+    $("#mStn").onchange=()=>{const id=resolveId($("#mStn").value); if(id) addMultiStation(id);};
+    rangePicker("#mRange",G.multi.start,G.multi.end,(s,e)=>{G.multi.start=s;G.multi.end=e;});
+    bindChipRemove("mChips",i=>{G.multi.stations.splice(i,1);renderPanel();});
+  }
+  else if(mode==="year"){
+    $("#yCty").onchange=e=>{ if(G.year.station)G.year.station.county=e.target.value; filterMapByCounty(e.target.value); renderPanel(); };
+    $("#yStn").onchange=()=>{const id=resolveId($("#yStn").value); if(id){const s=byId[id];G.year.station={id,name:s.name,county:s.county};focusMap(id);renderPanel();}};
+    rangePicker("#yRange",G.year.tmplS,G.year.tmplE,(s,e)=>{G.year.tmplS=s;G.year.tmplE=e;});
+    $("#yAdd").onclick=()=>{const y=parseInt($("#yAddYr").value); if(y&&!G.year.years.includes(y)){G.year.years.push(y);G.year.years.sort();renderPanel();}};
+    bindChipRemove("yChips",i=>{G.year.years.splice(i,1);renderPanel();});
+  }
+  else if(mode==="period"){
+    $("#pCty").onchange=e=>{ if(G.period.station)G.period.station.county=e.target.value; filterMapByCounty(e.target.value); renderPanel(); };
+    $("#pStn").onchange=()=>{const id=resolveId($("#pStn").value); if(id){const s=byId[id];G.period.station={id,name:s.name,county:s.county};focusMap(id);renderPanel();}};
+    rangePicker("#pRange",G.period.addS,G.period.addE,(s,e)=>{G.period.addS=s;G.period.addE=e;});
+    $("#pAdd").onclick=()=>{ if(G.period.addS&&G.period.addE){G.period.periods.push({start:G.period.addS,end:G.period.addE});renderPanel();} };
+    bindChipRemove("pChips",i=>{G.period.periods.splice(i,1);renderPanel();});
+  }
+  else {
+    $("#dCty").onchange=e=>{ if(G.disaster.station)G.disaster.station.county=e.target.value; filterMapByCounty(e.target.value); renderPanel(); };
+    $("#dStn").onchange=()=>{const id=resolveId($("#dStn").value); if(id){const s=byId[id];G.disaster.station={id,name:s.name,county:s.county};focusMap(id);renderPanel();}};
+    rangePicker("#dRange",G.disaster.start,G.disaster.end,(s,e)=>{G.disaster.start=s;G.disaster.end=e;});
+  }
+}
+function bindChipRemove(cls,fn){ const el=$("#"+cls); if(!el)return;
+  el.querySelectorAll(".x").forEach(b=>b.onclick=()=>fn(+b.dataset.i)); }
+function addMultiStation(id){
+  if(G.multi.stations.length>=8) return;
+  if(G.multi.stations.some(s=>s.id===id)) return;
+  const s=byId[id]; G.multi.stations.push({id,name:s.name,county:s.county}); renderPanel();
+}
+
+/* ---------------- 取資料 ---------------- */
+async function getDaily(id){
+  if(!dailyCache[id]) dailyCache[id]=await fetch(`${DATA_BASE}/daily/${id}.json`).then(r=>r.json()).catch(()=>({daily:{}}));
+  return dailyCache[id].daily||{};
+}
+async function getHourMonth(id,ym){ const k=id+"|"+ym;
+  if(!hourlyCache[k]) hourlyCache[k]=(await fetch(`/api/hourly?id=${encodeURIComponent(id)}&month=${ym}`).then(r=>r.json()).catch(()=>({hourly:{}}))).hourly||{};
+  return hourlyCache[k]; }
+function monthsBetween(s,e){const out=[];let y=+s.slice(0,4),m=+s.slice(5,7);const ey=+e.slice(0,4),em=+e.slice(5,7);
+  while(y<ey||(y===ey&&m<=em)){out.push(`${y}-${pad(m)}`);m++;if(m>12){m=1;y++;}}return out;}
+function pickElem(arr){ return Array.isArray(arr)? arr[curElem.idx] : null; }
+function aggElem(vals){
+  const nums=vals.filter(v=>typeof v==="number");
+  if(!nums.length) return null;
+  switch(curElem.agg){
+    case "sum": return Math.round(nums.reduce((a,b)=>a+b,0)*10)/10;
+    case "max": return Math.max(...nums);
+    case "min": return Math.min(...nums);
+    default:    return Math.round(nums.reduce((a,b)=>a+b,0)/nums.length*10)/10; // mean
+  }
+}
+async function seriesPoints(sp){ // sp:{id,start,end}
+  if(gran==="hour"){
+    let rows=[];
+    for(const ym of monthsBetween(sp.start,sp.end)){const h=await getHourMonth(sp.id,ym);
+      for(const[t,arr]of Object.entries(h)) if(t.slice(0,10)>=sp.start&&t.slice(0,10)<=sp.end) rows.push([t,pickElem(arr)]);}
+    return rows.sort((a,b)=>a[0]<b[0]?-1:1);
+  }
+  const daily=await getDaily(sp.id);
+  let rows=Object.entries(daily).filter(([d])=>d>=sp.start&&d<=sp.end).map(([d,arr])=>[d,pickElem(arr)]);
+  if(gran==="month"){const m={};for(const[d,v]of rows){const k=d.slice(0,7);(m[k]=m[k]||[]).push(v);}
+    rows=Object.entries(m).map(([k,vals])=>[k,aggElem(vals)]);}
+  return rows.sort((a,b)=>a[0]<b[0]?-1:1);
+}
+
+/* ---------------- 組系列 + 查詢 ---------------- */
+function buildSeries(){
+  if(mode==="multi"){
+    const s=G.multi.start,e=G.multi.end;
+    return {align:"date", list:G.multi.stations.map((st,i)=>({id:st.id,name:st.name,start:s,end:e,color:COLORS[i%8],label:st.name}))};
+  }
+  if(mode==="year"){
+    const st=G.year.station; if(!st||!G.year.tmplS||!G.year.tmplE) return {align:"offset",list:[]};
+    const mmS=G.year.tmplS.slice(5), mmE=G.year.tmplE.slice(5);
+    return {align:"offset", list:G.year.years.map((y,i)=>
+      ({id:st.id,name:st.name,start:`${y}-${mmS}`,end:`${y}-${mmE}`,color:COLORS[i%8],label:y+"年"}))};
+  }
+  const st=G.period.station; if(!st) return {align:"offset",list:[]};
+  return {align:"offset", list:G.period.periods.map((p,i)=>({id:st.id,name:st.name,start:p.start,end:p.end,color:COLORS[i%8],label:p.start+"~"+p.end}))};
+}
+
+async function runQuery(){
+  if(gran==="hour"&&STATIC){ $("#result").innerHTML=hourStaticMsg(); showSheet(); return; }
+  if(mode==="disaster") return runDisaster();
+  const {align,list}=buildSeries();
+  if(!list.length){ $("#result").innerHTML=`<div class="empty">請先${mode==="multi"?"加入至少一個測站":"選測站並加入年份/時段"}。</div>`; showSheet(); return; }
+  $("#result").innerHTML=`<div class="empty">查詢中…${gran==="hour"?"（逐時向 CODiS 現抓，請稍候）":""}</div>`; showSheet();
+  const data=[];
+  for(const sp of list){ const pts=await seriesPoints(sp); data.push({sp,pts,map:Object.fromEntries(pts)}); }
+  renderResult(align,data);
+}
+
+function uLab(){return gran==="hour"?"時":(gran==="month"?"月":"日");}
+function statLine(pts){
+  const nums=pts.map(p=>p[1]).filter(v=>typeof v==="number");
+  if(!nums.length) return "此期間無資料";
+  const u=curElem.unit, max=Math.max(...nums), min=Math.min(...nums);
+  const sum=nums.reduce((a,b)=>a+b,0), mean=sum/nums.length;
+  if(curElem.agg==="sum"){
+    const wet=pts.filter(p=>typeof p[1]==="number"&&p[1]>0).length;
+    return `總 ${sum.toFixed(1)}${u} · 最大 ${max.toFixed(1)}${u} · 有值 ${wet}/${pts.length}${uLab()}`;
+  }
+  return `均 ${mean.toFixed(1)}${u} · 最高 ${max.toFixed(1)}${u} · 最低 ${min.toFixed(1)}${u}`;
+}
+function renderResult(align,data){
+  let labels,datasets,head,rows;
+  if(align==="date"){
+    const keys=[...new Set(data.flatMap(d=>d.pts.map(p=>p[0])))].sort();
+    labels=keys;
+    datasets=data.map(d=>({label:d.sp.label,data:keys.map(k=>d.map[k]==null?null:d.map[k]),
+      borderColor:d.sp.color,backgroundColor:d.sp.color}));
+    head=[gran==="hour"?"時間":(gran==="month"?"月份":"日期"),...data.map(d=>d.sp.label)];
+    rows=keys.map(k=>[k,...data.map(d=>d.map[k]==null?"":d.map[k])]);
+  }else{
+    const maxN=Math.max(0,...data.map(d=>d.pts.length));
+    labels=Array.from({length:maxN},(_,i)=>`第${i+1}${uLab()}`);
+    datasets=data.map(d=>({label:d.sp.label,data:Array.from({length:maxN},(_,i)=>d.pts[i]?d.pts[i][1]:null),
+      borderColor:d.sp.color,backgroundColor:d.sp.color}));
+    head=["序",...data.map(d=>d.sp.label+`(${d.sp.start.slice(0,gran==="hour"?7:10)}起)`)];
+    rows=Array.from({length:maxN},(_,i)=>[`第${i+1}${uLab()}`,...data.map(d=>d.pts[i]?(d.pts[i][1]==null?"":d.pts[i][1]):"")]);
+  }
+  lastRender={data,head,rows,align};
+
+  const legend=data.map(d=>`<div class="lg"><span class="dot" style="background:${d.sp.color}"></span><span>
+      <b>${d.sp.label}</b> <span class="s">${d.sp.name}（${d.sp.id}）</span><br>
+      <span class="s">${statLine(d.pts)}</span></span></div>`).join("");
+
+  $("#result").innerHTML=`<div class="legend">${legend}</div>
+    <div class="chartbox"><canvas id="chart"></canvas></div>
+    <div class="meta">${curElem.name}（${curElem.unit}） · ${data.length} 條系列 · ${gran==="hour"?"逐時":(gran==="month"?"逐月":"逐日")} · ${align==="date"?"按實際日期對齊":"按相對起點對齊"} · ${labels.length} 點</div>
+    <div class="tablebox"><table>
+      <thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead>
+      <tbody>${rows.map(r=>`<tr>${r.map((c,i)=>`<td class="${i>0&&curElem.agg==="sum"&&c!==""&&c>0?"wet":""}">${c===""?"–":c}</td>`).join("")}</tr>`).join("")}</tbody>
+    </table></div>`;
+  drawChart(labels,datasets);
+  $("#xlsx").disabled=false; $("#csv").disabled=false;
+  $("#xlsx").onclick=exportXlsx; $("#csv").onclick=exportCsv;
+  $("#sheetTitle").textContent=`${curElem.name} · ${data.length} 條系列 · ${gran==="hour"?"逐時":(gran==="month"?"逐月":"逐日")}`;
+  showSheet();
+}
+
+function drawChart(labels,datasets){
+  if(chart)chart.destroy();
+  const u=curElem.unit;
+  const type=curElem.chart;
+  const zero=curElem.agg==="sum";  // 溫度等不從 0 起，雨量/日照從 0 起
+  chart=new Chart($("#chart").getContext("2d"),{type,
+    data:{labels,datasets:datasets.map(d=>({...d,borderWidth:type==="bar"?0:1.7,pointRadius:0,tension:.15,spanGaps:true}))},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+      plugins:{legend:{labels:{color:"#cbd5e1",boxWidth:12,padding:14}},
+        tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y==null?"–":c.parsed.y} ${u}`}}},
+      scales:{x:{ticks:{color:"#94a3b8",maxTicksLimit:14,autoSkip:true},grid:{display:false}},
+        y:{beginAtZero:zero,ticks:{color:"#94a3b8"},grid:{color:"#334155"},title:{display:true,text:u,color:"#94a3b8"}}}}
+  });
+}
+
+/* ---------------- 災害分析 ---------------- */
+async function runDisaster(){
+  const st=G.disaster.station;
+  if(!st){ $("#result").innerHTML=`<div class="empty">請先選一個測站。</div>`; showSheet(); return; }
+  const ths=curThresholds();
+  $("#result").innerHTML=`<div class="empty">掃描 ${st.name} 的「${curElem.name}」災害事件中…${gran==="hour"?"（逐時向 CODiS 現抓，較久）":""}</div>`; showSheet();
+  const pts=await seriesPoints({id:st.id,start:G.disaster.start,end:G.disaster.end});
+  renderDisaster(st,pts,ths);
+}
+function renderDisaster(st,pts,ths){
+  const u=curElem.unit, isBar=curElem.chart==="bar";
+  const labels=pts.map(p=>p[0]), vals=pts.map(p=>p[1]);
+  const below=!!(ths&&ths[0]&&ths[0].dir==="below");
+  const datasets=[{type:isBar?"bar":"line",label:curElem.name,data:vals,borderColor:"#38bdf8",backgroundColor:"#38bdf8",borderWidth:isBar?0:1.6,pointRadius:0,tension:.15,spanGaps:true}];
+  if(ths) for(const t of ths) datasets.push({type:"line",label:t.l,data:labels.map(()=>t.v),borderColor:t.c,borderDash:[6,4],borderWidth:1.3,pointRadius:0});
+
+  const events=[]; pts.forEach(([d,v])=>{const lv=classify(v,ths); if(lv) events.push([d,v,lv]);});
+  const valid=pts.filter(p=>typeof p[1]==="number");
+  const ranking=[...valid].sort((a,b)=> below? a[1]-b[1] : b[1]-a[1]).slice(0,10);
+  const cnt={}; if(ths) for(const t of ths) cnt[t.l]=events.filter(e=>e[2].l===t.l).length;
+
+  lastRender={ data:[{sp:{name:st.name,id:st.id,start:G.disaster.start,end:G.disaster.end}}],
+    head:[gran==="hour"?"時間":(gran==="month"?"月份":"日期"),`${curElem.name}(${u})`,"災害等級"],
+    rows:pts.map(([d,v])=>{const lv=classify(v,ths);return [d,v==null?"":v,lv?lv.l:""];}), align:"date" };
+
+  const sum = ths
+    ? `<div class="legend">`+ths.map(t=>`<div class="lg"><span class="dot" style="background:${t.c}"></span><span><b>${t.l}</b><br><span class="s">${t.dir==="below"?"≤":"≥"}${t.v}${u} · ${cnt[t.l]||0} ${uLab()}</span></span></div>`).join("")+`</div>`
+    : `<div class="meta">「${curElem.name}」無官方災害門檻；下方仍給極端排行。要看門檻警示請切雨量／最大陣風／最高溫／最低溫。</div>`;
+  const hdLab=gran==="hour"?"時間":(gran==="month"?"月份":"日期");
+  const evRows = events.length
+    ? events.slice().sort((a,b)=> below? a[1]-b[1] : b[1]-a[1]).map(([d,v,lv])=>`<tr><td>${d}</td><td class="wet">${v}</td><td><span class="lvbadge" style="background:${lv.c}">${lv.l}</span></td></tr>`).join("")
+    : `<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:18px">此期間沒有達到災害門檻 👍</td></tr>`;
+  const rkRows = ranking.map(([d,v],i)=>{const lv=classify(v,ths);return `<tr><td>${i+1}</td><td>${d}</td><td class="wet">${v} ${u}</td><td>${lv?`<span class="lvbadge" style="background:${lv.c}">${lv.l}</span>`:""}</td></tr>`;}).join("");
+
+  $("#result").innerHTML=`
+    <div style="margin-bottom:12px"><b style="font-size:16px">${st.name}</b> <span class="s" style="color:var(--muted)">${st.id} · ${st.county} · ${curElem.name} · ${G.disaster.start}~${G.disaster.end}</span></div>
+    ${sum}
+    <div class="chartbox"><canvas id="chart"></canvas></div>
+    <div class="meta">⚠️ 達標災害事件 ${events.length} 筆</div>
+    <div class="tablebox" style="max-height:240px;margin-bottom:14px"><table>
+      <thead><tr><th>${hdLab}</th><th>${curElem.name}(${u})</th><th>等級</th></tr></thead><tbody>${evRows}</tbody></table></div>
+    <div class="meta">🏆 極端${below?"最低":"最高"}排行 Top ${ranking.length}</div>
+    <div class="tablebox" style="max-height:260px"><table>
+      <thead><tr><th>#</th><th>${hdLab}</th><th>${curElem.name}</th><th>等級</th></tr></thead><tbody>${rkRows}</tbody></table></div>`;
+
+  if(chart) chart.destroy();
+  chart=new Chart($("#chart").getContext("2d"),{data:{labels,datasets},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+      plugins:{legend:{labels:{color:"#cbd5e1",boxWidth:12,padding:12}},
+        tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y==null?"–":c.parsed.y} ${u}`}}},
+      scales:{x:{ticks:{color:"#94a3b8",maxTicksLimit:14,autoSkip:true},grid:{display:false}},
+        y:{beginAtZero:curElem.agg==="sum",ticks:{color:"#94a3b8"},grid:{color:"#334155"},title:{display:true,text:u,color:"#94a3b8"}}}}});
+  $("#xlsx").disabled=false; $("#csv").disabled=false;
+  $("#xlsx").onclick=exportXlsx; $("#csv").onclick=exportCsv;
+  $("#sheetTitle").textContent=`災害分析 · ${st.name} · ${curElem.name}`;
+  showSheet();
+}
+
+/* ---------------- 匯出 ---------------- */
+function aoa(){ const {data,head,rows}=lastRender;
+  const meta=[`${curElem.name}(${curElem.unit})對比`,...data.map(d=>`${d.sp.name}(${d.sp.id}) ${d.sp.start}~${d.sp.end}`)];
+  return [meta,head,...rows.map(r=>r.map(c=>c===""?null:c))]; }
+function exportXlsx(){ const ws=XLSX.utils.aoa_to_sheet(aoa());const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,curElem.name);
+  XLSX.writeFile(wb,`${curElem.name}對比_${gran}_${new Date().toISOString().slice(0,10)}.xlsx`); }
+function exportCsv(){ const {head,rows}=lastRender;
+  const csv=[head.join(","),...rows.map(r=>r.join(","))].join("\n");
+  const b=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`${curElem.name}對比_${gran}.csv`;a.click(); }
+
+boot();
+</script>
+</body>
+</html>
