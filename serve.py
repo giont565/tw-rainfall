@@ -100,9 +100,31 @@ def fetch_hourly(stn_id, month):
     return result
 
 
+# 私人金鑰閘門：雲端(有 PORT 環境變數)才啟用；本機開發不用鑰匙
+ACCESS_KEY = "9c52924e32"
+REQUIRE_KEY = bool(os.environ.get("PORT"))
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **k):
         super().__init__(*a, directory=HERE, **k)
+
+    def _authed(self, parsed):
+        if not REQUIRE_KEY:
+            return True
+        q = parse_qs(parsed.query)
+        if (q.get("k") or [""])[0] == ACCESS_KEY:
+            self._issue_cookie = True  # 首次帶金鑰 → 發 cookie，之後免帶
+            return True
+        return f"k={ACCESS_KEY}" in (self.headers.get("Cookie") or "")
+
+    def end_headers(self):
+        if getattr(self, "_issue_cookie", False):
+            self.send_header(
+                "Set-Cookie",
+                f"k={ACCESS_KEY}; Path=/; Max-Age=31536000; SameSite=Lax",
+            )
+        super().end_headers()
 
     def _send_json(self, obj, status=200):
         body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
@@ -122,10 +144,13 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urlparse(self.path)
-        if parsed.path in ("/api/hourly", "/healthz"):
-            if parsed.path == "/healthz":
-                self._send_json({"ok": True})
-                return
+        if parsed.path == "/healthz":
+            self._send_json({"ok": True})
+            return
+        if not self._authed(parsed):
+            self._send_json({"error": "此為私人服務，需要金鑰（網址加 ?k=金鑰）"}, 403)
+            return
+        if parsed.path == "/api/hourly":
             q = parse_qs(parsed.query)
             stn_id = (q.get("id") or [""])[0]
             month = (q.get("month") or [""])[0]
