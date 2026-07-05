@@ -101,8 +101,9 @@ def fetch_hourly(stn_id, month):
 
 
 # 私人金鑰閘門：雲端(有 PORT 環境變數)才啟用；本機開發不用鑰匙
-ACCESS_KEY = "9c52924e32"
-REQUIRE_KEY = bool(os.environ.get("PORT"))
+# 鑰匙不寫在程式裡（repo 公開），改由 Render 環境變數 ACCESS_KEY 提供
+ACCESS_KEY = os.environ.get("ACCESS_KEY", "")
+REQUIRE_KEY = bool(os.environ.get("PORT") and ACCESS_KEY)
 
 
 class Handler(SimpleHTTPRequestHandler):

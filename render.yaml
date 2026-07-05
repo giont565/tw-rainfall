@@ -1,8 +1,11 @@
 services:
   - type: web
-    name: tw-rainfall-api
+    name: twr-68a4ff34
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: python serve.py
     healthCheckPath: /healthz
+    envVars:
+      - key: ACCESS_KEY
+        sync: false
