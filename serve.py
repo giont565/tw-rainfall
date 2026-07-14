@@ -11,6 +11,8 @@
     同站同月第二次直接讀快取。
 """
 import os
+import threading
+import zipfile
 import re
 import json
 import calendar
@@ -51,10 +53,11 @@ _STN_TYPE = {}
 
 
 def load_station_types():
-    path = os.path.join(HERE, "data", "stations.json")
-    with open(path, encoding="utf-8") as f:
-        for s in json.load(f):
-            _STN_TYPE[s["id"]] = s["stn_type"]
+    body = read_data_file("data/stations.json")
+    if body is None:
+        raise SystemExit("找不到 data/stations.json（磁碟與 data.zip 都沒有）")
+    for s in json.loads(body):
+        _STN_TYPE[s["id"]] = s["stn_type"]
 
 
 def fetch_hourly(stn_id, month):
@@ -106,6 +109,26 @@ ACCESS_KEY = os.environ.get("ACCESS_KEY", "")
 REQUIRE_KEY = bool(os.environ.get("PORT") and ACCESS_KEY)
 
 
+DATA_ZIP = os.path.join(HERE, "data.zip")
+_ZIP = zipfile.ZipFile(DATA_ZIP) if os.path.exists(DATA_ZIP) else None
+_ZIP_LOCK = threading.Lock()
+
+
+def read_data_file(rel):
+    """讀 data/ 下的檔：磁碟優先，沒有就從 data.zip 拿；都沒有回 None"""
+    p = os.path.join(HERE, rel)
+    if os.path.exists(p):
+        with open(p, "rb") as f:
+            return f.read()
+    if _ZIP:
+        with _ZIP_LOCK:
+            try:
+                return _ZIP.read(rel)
+            except KeyError:
+                return None
+    return None
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **k):
         super().__init__(*a, directory=HERE, **k)
@@ -150,6 +173,18 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if not self._authed(parsed):
             self._send_json({"error": "此為私人服務，需要金鑰（網址加 ?k=金鑰）"}, 403)
+            return
+        if parsed.path.startswith("/data/"):
+            body = read_data_file(parsed.path.lstrip("/"))
+            if body is None:
+                self._send_json({"error": "not found"}, 404)
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(body)
             return
         if parsed.path == "/api/hourly":
             q = parse_qs(parsed.query)
