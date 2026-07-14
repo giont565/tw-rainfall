@@ -1,0 +1,9 @@
+service: rain
+runtime: python312
+instance_class: F1
+entrypoint: python serve.py
+env_variables:
+  CACHE_DIR: /tmp/hourly
+handlers:
+- url: /.*
+  script: auto

@@ -43,7 +43,7 @@ def hourly_row_to_elems(row):
     ]
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-HOURLY_CACHE = os.path.join(HERE, "data", "hourly")
+HOURLY_CACHE = os.environ.get("CACHE_DIR") or os.path.join(HERE, "data", "hourly")
 MONTH_RE = re.compile(r"^\d{4}-\d{2}$")
 
 # 站號 -> stn_type（從已抓好的 stations.json 讀）
