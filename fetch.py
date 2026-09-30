@@ -251,6 +251,7 @@ def main():
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--throttle", type=float, default=0.4, help="同站每年請求間隔秒")
     ap.add_argument("--limit", type=int, default=0, help="只跑前 N 站（測試用）")
+    ap.add_argument("--force", action="store_true", help="不管已有資料都重抓指定年份（每日更新今年用）")
     args = ap.parse_args()
     years = [int(y) for y in args.years.split(",")]
 
@@ -259,7 +260,7 @@ def main():
     if args.limit:
         stations = stations[:args.limit]
 
-    todo = [s for s in stations if need_fetch(s["id"], years)]
+    todo = stations if args.force else [s for s in stations if need_fetch(s["id"], years)]
     print(f"[fetch] 共 {len(stations)} 站，需抓 {len(todo)} 站（其餘已完成，跳過），年份 {years}")
 
     done = 0

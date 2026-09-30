@@ -38,6 +38,7 @@
   .spacer{flex:1}
   .go{padding:9px 22px;background:var(--accent);border:0;border-radius:9px;color:#04243a;font-weight:700;font-size:14px;cursor:pointer}
   .go:hover{background:#7dd3fc}
+  .go[disabled]{opacity:.65;cursor:wait}
   .xbtn{padding:9px 16px;background:var(--green);border:0;border-radius:9px;color:#fff;cursor:pointer;font-size:13px;font-weight:600}
   .xbtn:hover{background:#22c55e}
   .xbtn[disabled]{opacity:.4;cursor:not-allowed}
@@ -47,13 +48,14 @@
   /* 舞台：地圖滿版當底，控制面板與結果面板浮在上面 */
   #stage{position:relative;height:calc(100vh - 124px);overflow:hidden}
   #map{position:absolute;inset:0;background:#1a2436;z-index:1}
-  .floatpanel{position:absolute;top:16px;left:16px;width:344px;max-height:calc(100% - 32px);
+  .floatpanel{position:absolute;top:16px;left:16px;width:356px;max-height:calc(100% - 32px);
     background:rgba(15,23,42,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     border:1px solid var(--line2);border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.45);
     z-index:500;display:flex;flex-direction:column;overflow:hidden}
   .fp-head{padding:13px 18px;border-bottom:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink);
     display:flex;align-items:center;gap:7px}
   .fp-head .pin{font-size:15px}
+  .fp-head .kb{margin-left:auto;font-weight:400;font-size:11px;color:var(--muted)}
   .panel{padding:16px 18px;overflow:auto}
 
   /* 結果底部抽屜 */
@@ -73,6 +75,8 @@
 
   .ptitle{font-size:13px;font-weight:600;color:var(--ink);margin:2px 0 12px;display:flex;align-items:center;gap:7px}
   .ptitle .badge{font-size:11px;color:var(--muted);font-weight:400}
+  .ptitle .lnk{margin-left:auto;background:none;border:0;color:var(--muted);font-size:11.5px;cursor:pointer;padding:0}
+  .ptitle .lnk:hover{color:#f87171}
   label{display:block;font-size:12px;color:var(--muted);margin:11px 0 5px}
   label:first-of-type{margin-top:0}
   select,input{width:100%;padding:9px 11px;background:var(--panel2);border:1px solid var(--line2);
@@ -82,6 +86,32 @@
   .addrow .ico{flex:0 0 auto;padding:9px 14px;background:var(--panel2);border:1px solid var(--line2);
     border-radius:9px;color:var(--accent);cursor:pointer;font-size:14px;font-weight:600}
   .addrow .ico:hover{border-color:var(--accent)}
+
+  /* 測站搜尋框（可打字、上下鍵、Enter 選） */
+  .cbox{position:relative;flex:1}
+  .cb-list{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;max-height:320px;overflow:auto;
+    background:#162033;border:1px solid var(--line2);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.55);z-index:50}
+  .cb-list.open{display:block}
+  .cb-it{padding:8px 11px;cursor:pointer;border-bottom:1px solid #22304a;font-size:13px;line-height:1.4}
+  .cb-it .cid{color:var(--muted);font-size:11.5px}
+  .cb-it .sub{color:var(--muted);font-size:11px;margin-top:1px}
+  .cb-it.act,.cb-it:hover{background:#1e3a52}
+  .cb-it.ret{opacity:.55}
+  .cb-it .ok{color:#34d399;font-size:11px}
+  .cb-sec{padding:6px 11px;font-size:11px;color:var(--accent);background:#132035;position:sticky;top:0;z-index:1}
+  .cb-empty{padding:10px 11px;color:var(--muted);font-size:12px}
+
+  /* 快選膠囊 */
+  .pres{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .pres button,.mchips button,.ychips button{padding:5px 10px;background:var(--panel2);border:1px solid var(--line2);
+    border-radius:20px;color:var(--ink);font-size:12px;cursor:pointer}
+  .pres button:hover,.mchips button:hover,.ychips button:hover{border-color:var(--accent)}
+  .ychips{display:flex;flex-wrap:wrap;gap:6px}
+  .ychips button{padding:6px 12px}
+  .ychips button.on{color:#0b1220;font-weight:700;border-color:transparent}
+  .mchips{display:flex;flex-wrap:wrap;gap:4px}
+  .mchips button{padding:4px 0;width:32px;border-radius:7px}
+  .mchips button.on{background:var(--accent2);border-color:var(--accent2);color:#fff;font-weight:600}
 
   /* chips */
   .chips{display:flex;flex-direction:column;gap:7px;margin-top:12px}
@@ -94,10 +124,12 @@
   .chip .x:hover{color:#f87171}
   .empty-chip{color:var(--muted);font-size:12px;padding:11px;border:1px dashed var(--line2);border-radius:10px;text-align:center;margin-top:10px}
   .tip{color:var(--muted);font-size:11.5px;margin-top:10px;line-height:1.6}
+  .rinfo{color:var(--muted);font-size:11.5px;margin-top:6px}
   /* flatpickr：吃滿寬、配深色 */
   .flatpickr-input{cursor:pointer;background:var(--panel2)}
   .flatpickr-calendar{background:#1e293b;box-shadow:0 8px 28px rgba(0,0,0,.5);border:1px solid var(--line2)}
   .flatpickr-day{color:var(--ink)}
+  .flatpickr-day.flatpickr-disabled{color:#475569}
   .flatpickr-day.inRange,.flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange{
     background:var(--accent2);border-color:var(--accent2);box-shadow:none}
   .flatpickr-day.inRange{background:#1e3a52;border-color:#1e3a52}
@@ -106,7 +138,7 @@
   .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(59,130,246,.32)!important}
   .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:rgba(37,99,235,.9)!important;color:#fff!important;font-weight:600}
 
-  /* 右側結果 */
+  /* 結果 */
   .legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}
   .lg{display:flex;align-items:center;gap:8px;font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 13px}
   .lg .dot{width:11px;height:11px;border-radius:50%}
@@ -117,10 +149,64 @@
   th,td{padding:7px 11px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
   th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--panel)}
   thead th{position:sticky;top:0;background:var(--panel2);color:var(--muted);font-weight:600}
-  .tablebox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0 14px 14px;max-height:430px;overflow:auto}
+  thead th:first-child{background:var(--panel2);z-index:2}
+  th.srt{cursor:pointer;user-select:none}
+  th.srt:hover{color:var(--ink)}
+  th.srt.on{color:var(--accent)}
+  td.nores{text-align:center!important;color:var(--muted);padding:22px!important;position:static}
+  .tablebox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0 14px 14px;max-height:430px;overflow:auto;margin-bottom:10px}
   .wet{color:#7dd3fc}
   .lvbadge{display:inline-block;padding:2px 9px;border-radius:20px;color:#0b1220;font-size:12px;font-weight:700}
   .empty{color:var(--muted);text-align:center;padding:80px 24px;line-height:2}
+
+  /* 結果內篩選列 */
+  .fbar{background:var(--panel2);border:1px solid var(--line2);border-radius:14px;padding:12px 14px;margin-bottom:16px}
+  .fhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .fhead b{font-size:14px}
+  .fhint{color:var(--muted);font-size:11.5px}
+  .fcount{margin-left:auto;font-size:13px}
+  .fcount b{color:var(--accent);font-size:15px}
+  .fbtn{background:var(--panel);border:1px solid var(--line2);color:var(--ink);border-radius:8px;cursor:pointer;font-size:12px;padding:5px 11px}
+  .fbtn:hover{border-color:var(--accent)}
+  .fbody{margin-top:12px;display:flex;flex-direction:column;gap:12px}
+  .fbar.closed .fbody{display:none}
+  .frow{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:flex-start}
+  .fitem{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .fitem.grow{flex:1;align-items:flex-start}
+  .flab{font-size:12px;color:var(--muted);min-width:56px;padding-top:2px}
+  .fbar select,.fbar input{width:auto;padding:6px 9px;font-size:13px;background:var(--panel)}
+  .fbar .fdate{min-width:236px}
+  .fbar .pres{margin-top:0}
+  .fconds{display:flex;flex-direction:column;gap:6px}
+  .cond{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .cond input{width:96px}
+  .cond .x{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:17px;padding:0 4px}
+  .cond .x:hover{color:#f87171}
+  /* Power BI 式互動 */
+  .fchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .fchips:empty{display:none}
+  .fchip{display:inline-flex;align-items:center;gap:6px;background:#0c4a6e;border:1px solid #0ea5e9;color:#e0f2fe;border-radius:20px;padding:3px 6px 3px 11px;font-size:12px}
+  .fchip button{background:none;border:0;color:#bae6fd;cursor:pointer;font-size:15px;line-height:1;padding:0 3px}
+  .fchip button:hover{color:#f87171}
+  .fchip.pick{background:#3b0764;border-color:#a855f7;color:#f3e8ff}
+  .chartbox{position:relative}
+  .chartbox canvas{touch-action:pan-y}
+  .brush{position:absolute;background:rgba(56,189,248,.16);border:1px solid #38bdf8;border-radius:4px;pointer-events:none;z-index:3}
+  .chint{font-size:11.5px;color:var(--muted);margin:-8px 0 12px}
+  .crumb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;margin-bottom:8px}
+  .crumb .up{background:var(--panel2);border:1px solid var(--line2);color:var(--ink);border-radius:8px;cursor:pointer;font-size:12px;padding:4px 10px}
+  .crumb .up:hover{border-color:var(--accent)}
+  .crumb b{color:var(--accent)}
+  tbody tr[data-k],tbody tr[data-g]{cursor:pointer}
+  tbody tr:hover td{background:#26354d}
+  tbody tr.pk td{background:#3b0764!important;color:#f5f3ff}
+  .lg.tog{cursor:pointer;user-select:none}
+  .lg.tog:hover{border-color:var(--accent)}
+  .lg.off{opacity:.38}
+  .lg.act{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .fstat{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 14px}
+  .fstat span{font-size:12px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 10px}
+  .fstat b{color:var(--ink)}
   /* ---------- 手機版：改上下堆疊、面板整寬、結果接續捲動 ---------- */
   @media(max-width:760px){
     header{padding:12px 14px}
@@ -132,12 +218,13 @@
     .spacer{flex-basis:100%;height:0}          /* 強制換行，讓查詢/匯出到下一排 */
     #elem{min-width:88px}
     .go{flex:1}                                 /* 查詢鍵放大好按 */
+    .fp-head .kb{display:none}
 
     #stage{position:static;height:auto;overflow:visible;display:flex;flex-direction:column}
-    #map{position:static;inset:auto;height:46vh;min-height:280px;order:2}
+    #map{position:relative;inset:auto;overflow:hidden;   /* relative：地圖內部圖層才不會撐出橫向捲動 */height:46vh;min-height:280px;order:2}
     .floatpanel{position:static;width:auto;max-height:none;margin:0;border:0;border-bottom:1px solid var(--line);
-      border-radius:0;box-shadow:none;background:var(--panel);backdrop-filter:none;-webkit-backdrop-filter:none;order:1}
-    .panel{padding:14px 14px 16px}
+      border-radius:0;box-shadow:none;background:var(--panel);backdrop-filter:none;-webkit-backdrop-filter:none;order:1;overflow:visible}
+    .panel{padding:14px 14px 16px;overflow:visible}
     /* 結果抽屜：手機改成一般區塊接在下面，不用浮層 */
     #sheet{position:static;transform:none;height:auto;border-radius:0;box-shadow:none;border-top:8px solid var(--bg);order:3}
     #sheet .sheet-grab{display:none}
@@ -146,6 +233,9 @@
     .legend{gap:8px}.lg{padding:7px 10px}
     .tablebox{max-height:340px}
     th,td{padding:6px 8px;font-size:12px}
+    .fcount{margin-left:0;flex-basis:100%}
+    .flab{min-width:auto;flex-basis:100%}
+    .fbar .fdate{min-width:0;flex:1}
   }
   @media(max-width:400px){ .seg button{padding:7px 8px;font-size:12px} .topbar{gap:8px} }
 </style>
@@ -191,7 +281,7 @@
 <div id="stage">
   <div id="map"></div>
   <div class="floatpanel">
-    <div class="fp-head"><span class="pin">🎯</span> 選擇查詢條件</div>
+    <div class="fp-head"><span class="pin">🎯</span> 選擇查詢條件<span class="kb">按 Enter 直接查詢</span></div>
     <div class="panel" id="panel"><!-- 依模式動態 --></div>
   </div>
   <div id="sheet">
@@ -210,11 +300,13 @@
 <script>
 // 本機(serve.py)在 /web/index.html → ../data；GitHub Pages 放根目錄 → data
 const DATA_BASE = location.pathname.includes("/web/") ? "../data" : "data";
-// 非本機 = 雲端(GitHub Pages)：逐時改打 Render 後端代抓
+// 非本機 = 雲端：逐時改打後端代抓
 const STATIC = !/^(localhost|127\.|0\.0\.0\.0|\[?::1)/.test(location.hostname);
-const HOURLY_BASE = STATIC ? "https://tw-rainfall-api.onrender.com" : "";  // 雲端逐時後端
-function hourBackendMsg(){ return `<div class="empty">🕐 逐時後端沒有回應。<br>可能是免費後端<b>正在喚醒（首次約 30-60 秒）</b>，稍候再按一次查詢；<br>或後端尚未部署——本機版(serve.py)一定可用。</div>`; }
+const HOURLY_BASE = STATIC ? "https://rain.hao-hub.com" : "";  // 逐時後端(同源 Cloudflare 通道)
+function hourBackendMsg(){ return `<div class="empty">🕐 逐時後端沒有回應。<br>可能是後端<b>正在喚醒</b>，稍候再按一次查詢；<br>或後端尚未啟動——本機版(serve.py)一定可用。</div>`; }
 const COLORS=["#38bdf8","#fb923c","#a78bfa","#34d399","#f472b6","#facc15","#60a5fa","#f87171"];
+const DATA_MIN="2016-01-01";          // 本工具收錄資料起始日（近 10 年）
+const GROUP_LAB={cwb:"有人站",agr:"農業站",auto:"自動站"};
 // 要素：idx 對應 data/daily 陣列順序；agg=逐月彙總方式；chart=圖型
 const ELEMS=[
   {k:"p",    name:"雨量",   unit:"mm", idx:0, agg:"sum",  chart:"bar"},
@@ -251,40 +343,77 @@ function classify(val,ths){
 }
 let STATIONS=[], byId={}, counties=[];
 let mode="multi", gran="day";
-let chart=null, lastRender=null;
+let chart=null;
 const dailyCache={}, hourlyCache={};
 
 // 各模式狀態
 const G = {
   multi:  { stations:[], start:"", end:"" },               // 多站、共用時間
   year:   { station:null, tmplS:"", tmplE:"", years:[] },  // 範本期間(完整日期，只取月-日)
-  period: { station:null, periods:[], addS:"", addE:"" },  // [{start,end}]
-  disaster:{ station:null, start:"", end:"" },             // 單站+範圍 災害分析
+  period: { station:null, periods:[] },                    // [{start,end}]
+  disaster:{ scope:"station", county:"", station:null, start:"", end:"" },  // 災害分析：單站 或 整個地區
   rank:   { county:"", start:"", end:"" },                 // 全台排行 + 地圖熱度
 };
 
 const $=s=>document.querySelector(s);
 const pad=n=>String(n).padStart(2,"0");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const lastDayOf=ym=>{const[y,m]=ym.split("-").map(Number);return `${ym}-${pad(new Date(y,m,0).getDate())}`;};
+function fmtD(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+const todayStr=()=>fmtD(new Date());
+const dayCount=(s,e)=>Math.round((new Date(e)-new Date(s))/864e5)+1;
 
 async function boot(){
-  try{ STATIONS=await (await fetch(`${DATA_BASE}/stations.json`)).json(); }
+  try{ STATIONS=await (await fetch(`${DATA_BASE}/stations.json`,{cache:"no-cache"})).json(); }   // no-cache：先問伺服器有沒有更新，資料補抓後不會卡舊版
   catch(e){ $("#result").innerHTML=`<div class="empty">讀不到測站清單。請用 <b>serve.py</b> 啟動伺服器後從 http://localhost 開啟。</div>`; return; }
   byId=Object.fromEntries(STATIONS.map(s=>[s.id,s]));
   counties=[...new Set(STATIONS.map(s=>s.county).filter(Boolean))].sort();
   $("#elem").innerHTML=ELEMS.map((e,i)=>`<option value="${i}">${e.name}</option>`).join("");
-  $("#elem").onchange=ev=>{ curElem=ELEMS[+ev.target.value]; };
+  $("#elem").onchange=ev=>{ curElem=ELEMS[+ev.target.value]; renderPanel(); autoRerun("要素"); };
   const t=new Date(), y=t.getFullYear();
   G.multi.start=`${y-1}-${pad(t.getMonth()+1)}-01`;
-  G.multi.end=t.toISOString().slice(0,10);
+  G.multi.end=todayStr();
   G.year.years=[y-2,y-1,y];
   G.year.tmplS=`${y-1}-06-01`; G.year.tmplE=`${y-1}-06-30`;
   G.disaster.start=G.multi.start; G.disaster.end=G.multi.end;
   G.rank.start=G.multi.start; G.rank.end=G.multi.end;
   const restored=applyShareUrl();      // 若網址帶查詢參數，先還原狀態
+  if(!restored) loadState();           // 否則還原上次用過的條件
+  syncTopbar();
   initMap(); renderPanel();
   wireExtras();                        // 分享 / 圖片 按鈕
   if(restored) runQuery();             // 分享連結進來 → 自動查一次
+}
+
+/* ---------------- 記住上次條件（只存在這台電腦的瀏覽器） ---------------- */
+function saveState(){ try{ localStorage.setItem("twr_state",JSON.stringify({mode,gran,e:ELEMS.indexOf(curElem),G,panelCounty})); }catch(e){} }
+function loadState(){
+  try{
+    const s=JSON.parse(localStorage.getItem("twr_state")||"null"); if(!s||!s.G) return;
+    const ok=st=>st&&byId[st.id]?{id:st.id,name:byId[st.id].name,county:byId[st.id].county}:null;
+    const D=/^\d{4}-\d{2}-\d{2}$/, g=s.G;
+    if(g.multi){ G.multi.stations=(g.multi.stations||[]).map(ok).filter(Boolean).slice(0,8);
+      if(D.test(g.multi.start))G.multi.start=g.multi.start; if(D.test(g.multi.end))G.multi.end=g.multi.end; }
+    if(g.year){ G.year.station=ok(g.year.station);
+      if(D.test(g.year.tmplS))G.year.tmplS=g.year.tmplS; if(D.test(g.year.tmplE))G.year.tmplE=g.year.tmplE;
+      if(Array.isArray(g.year.years))G.year.years=g.year.years.filter(Number.isFinite); }
+    if(g.period){ G.period.station=ok(g.period.station);
+      if(Array.isArray(g.period.periods))G.period.periods=g.period.periods.filter(p=>p&&D.test(p.start)&&D.test(p.end)); }
+    if(g.disaster){ G.disaster.station=ok(g.disaster.station);
+      G.disaster.scope=g.disaster.scope==="area"?"area":"station"; G.disaster.county=counties.includes(g.disaster.county)?g.disaster.county:"";
+      if(D.test(g.disaster.start))G.disaster.start=g.disaster.start; if(D.test(g.disaster.end))G.disaster.end=g.disaster.end; }
+    if(g.rank){ G.rank.county=counties.includes(g.rank.county)?g.rank.county:"";
+      if(D.test(g.rank.start))G.rank.start=g.rank.start; if(D.test(g.rank.end))G.rank.end=g.rank.end; }
+    if(s.mode&&G[s.mode]) mode=s.mode;
+    if(["day","month","hour"].includes(s.gran)) gran=s.gran;
+    if(ELEMS[s.e]) curElem=ELEMS[s.e];
+    if(counties.includes(s.panelCounty)) panelCounty=s.panelCounty;
+  }catch(e){}
+}
+function syncTopbar(){
+  $("#elem").value=String(ELEMS.indexOf(curElem));
+  [...$("#mode").children].forEach(b=>b.classList.toggle("on",b.dataset.m===mode));
+  [...$("#gran").children].forEach(b=>b.classList.toggle("on",b.dataset.g===gran));
 }
 
 /* ---------------- 地圖 ---------------- */
@@ -302,12 +431,12 @@ function initMap(){
   for(const s of STATIONS){
     if(typeof s.lat!=="number") continue;
     const m=L.circleMarker([s.lat,s.lon],{radius:5,color:"#1d4ed8",weight:1.4,fillColor:"#3b82f6",fillOpacity:.85});
-    m.bindTooltip(`${s.name}（${s.id}）<br>${s.county}`);
+    m.bindTooltip(`${esc(s.name)}（${s.id}）<br>${esc(s.county)}${stnRetired(s)?"<br>已撤站":""}`);
     m.on("click",()=>mapPick(s.id));
     allMarkers.push({id:s.id, county:s.county, lat:s.lat, lon:s.lon, m});
   }
   map.addLayer(cluster);
-  filterMapByCounty("");
+  filterMapByCounty(mode==="rank"?G.rank.county:"");
   setTimeout(()=>map.invalidateSize(),60);
   window.addEventListener("resize",()=>map.invalidateSize());
 }
@@ -337,6 +466,17 @@ $("#sheetGrab").ondblclick=()=>$("#sheetToggle").click();
 function focusMap(id){ const s=byId[id]; if(s&&typeof s.lat==="number") map.setView([s.lat,s.lon],Math.max(map.getZoom(),10)); }
 function mapPick(id){
   const s=byId[id];
+  if(mode==="rank"){   // 排行模式：點站看名次，並把表格篩到這站
+    const r=RES&&RES.kind==="rank"?RES.rows.find(x=>x[2]===id):null;
+    toast(r?`${s.name}：第 ${r[0]} 名 · ${r[4]} ${RES.elem.unit}`:`${s.name}（${s.county}）此期間沒有資料`);
+    if(r) togglePick(String(r[0]),false,true);
+    return;
+  }
+  if(mode==="disaster"&&G.disaster.scope==="area"){   // 地區模式：點站 → 結果只看這站
+    if(RES&&RES.kind==="disasterArea"&&$("#fTxt")){ F.text=s.id; $("#fTxt").value=s.id; refresh(); toast(`只看 ${s.name} 的災害紀錄（清空搜尋框可還原）`); }
+    return;
+  }
+  pushRecent(id);
   if(mode==="multi"){ addMultiStation(id); }
   else { G[mode].station={id,name:s.name,county:s.county}; renderPanel(); }
   focusMap(id);
@@ -344,145 +484,264 @@ function mapPick(id){
 
 /* ---------------- 模式/顆粒切換 ---------------- */
 $("#mode").onclick=e=>{ if(e.target.tagName!=="BUTTON")return;
-  [...$("#mode").children].forEach(b=>b.classList.toggle("on",b===e.target));
-  mode=e.target.dataset.m; if(mode!=="rank") resetMarkers(); renderPanel(); };
+  mode=e.target.dataset.m; syncTopbar();
+  resetMarkers(); if(mode==="rank") filterMapByCounty(G.rank.county); else if(mode==="disaster"&&G.disaster.scope==="area") filterMapByCounty(G.disaster.county);
+  renderPanel(); };
 $("#gran").onclick=e=>{ if(e.target.tagName!=="BUTTON")return;
-  [...$("#gran").children].forEach(b=>b.classList.toggle("on",b===e.target));
-  gran=e.target.dataset.g; renderPanel(); };
-$("#go").onclick=runQuery;
+  gran=e.target.dataset.g; syncTopbar(); renderPanel(); autoRerun("顆粒"); };
+$("#go").onclick=()=>runQuery();
+// 條件面板裡按 Enter = 查詢（測站搜尋框的 Enter 用來選站，不會觸發）
+$("#panel").addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.target.closest(".cbox")&&e.target.tagName!=="BUTTON"){ e.preventDefault(); runQuery(); } });
+// 已有結果時換要素/顆粒 → 自動重查（逐時要現抓，不自動）
+function autoRerun(what){
+  if(!RES||mode==="rank"&&what==="顆粒") return;
+  if(gran==="hour"){ toast(`${what}已切換，逐時資料需重新下載，請按「查詢」`); return; }
+  if(RES.mode===mode) runQuery();
+}
 
-/* ---------------- 共用小工具 ---------------- */
+/* ---------------- 測站搜尋框 ---------------- */
+function stnRetired(s){ return !!(s.end && s.end<DATA_MIN); }
 function countySelect(id,cur){ return `<select id="${id}"><option value="">— 全部縣市 —</option>`+
-  counties.map(c=>`<option ${c===cur?"selected":""}>${c}</option>`).join("")+`</select>`; }
-function stationInput(id,listId,county,val){
-  const opts=STATIONS.filter(x=>!county||x.county===county).map(x=>`<option value="${x.name}（${x.id}）">`).join("");
-  return `<input id="${id}" list="${listId}" placeholder="打字找站名或站號…" value="${val||""}">
-          <datalist id="${listId}">${opts}</datalist>`;
+  counties.map(c=>`<option ${c===cur?"selected":""}>${esc(c)}</option>`).join("")+`</select>`; }
+function loadRecent(){ try{ return JSON.parse(localStorage.getItem("twr_recent")||"[]").filter(id=>byId[id]); }catch(e){ return []; } }
+function pushRecent(id){ try{ localStorage.setItem("twr_recent",JSON.stringify([id,...loadRecent().filter(x=>x!==id)].slice(0,8))); }catch(e){} }
+function stationBox(id,val){
+  return `<div class="cbox"><input id="${id}" autocomplete="off" spellcheck="false" placeholder="打字找站名、站號、鄉鎮…（↑↓ 選，Enter 確定）" value="${esc(val||"")}"><div class="cb-list" id="${id}L"></div></div>`;
+}
+const norm=s=>String(s||"").toLowerCase().replace(/台/g,"臺");   // 「台北」「臺北」都找得到
+function searchStations(q,county){
+  q=norm(q).trim();
+  const pool=STATIONS.filter(s=>!county||s.county===county);
+  if(!q){
+    const rec=loadRecent().map(id=>byId[id]).filter(s=>!county||s.county===county), rs=new Set(rec.map(s=>s.id));
+    const rest=pool.filter(s=>!rs.has(s.id)&&!stnRetired(s));
+    return {recent:rec, list:rest.slice(0,80), total:rest.length};
+  }
+  const scored=[];
+  for(const s of pool){
+    const nm=norm(s.name), id=s.id.toLowerCase(); let sc=-1;
+    if(id===q||nm===q) sc=0; else if(nm.startsWith(q)) sc=1; else if(id.startsWith(q)) sc=2; else if(nm.includes(q)) sc=3;
+    else if(norm(s.area).includes(q)||norm(s.county).includes(q)||norm(s.address).includes(q)) sc=4;
+    if(sc<0) continue;
+    if(stnRetired(s)) sc+=10;          // 撤站的排到最後
+    scored.push([sc,s]);
+  }
+  scored.sort((a,b)=>a[0]-b[0]||a[1].name.localeCompare(b[1].name,"zh-Hant"));
+  return {recent:[], list:scored.slice(0,80).map(x=>x[1]), total:scored.length};
+}
+function cbItem(s,picked){ const ret=stnRetired(s);
+  return `<div class="cb-it${ret?" ret":""}" data-id="${s.id}"><div><b>${esc(s.name)}</b> <span class="cid">${s.id}</span>${picked?' <span class="ok">✓ 已加入</span>':""}</div>
+    <div class="sub">${esc(s.county)} ${esc(s.area||"")} · ${GROUP_LAB[s.group]||esc(s.group)}${ret?` · ${s.end.slice(0,4)} 年已撤站（沒有近年資料）`:""}</div></div>`; }
+// getCounty：目前縣市篩選；onPick(id)；pickedIds：已選的站（打勾用）
+function bindStationBox(id,getCounty,onPick,pickedIds){
+  const inp=$("#"+id), box=$("#"+id+"L"); if(!inp) return;
+  let items=[], act=-1;
+  const hl=()=>{ const els=box.querySelectorAll(".cb-it"); els.forEach((el,i)=>el.classList.toggle("act",i===act)); els[act]&&els[act].scrollIntoView({block:"nearest"}); };
+  const draw=()=>{
+    const cty=getCounty(), r=searchStations(inp.value,cty), picked=new Set(pickedIds?pickedIds():[]);
+    items=[...r.recent,...r.list]; act=items.length?0:-1;
+    let h="";
+    if(r.recent.length) h+=`<div class="cb-sec">🕘 最近用過</div>`+r.recent.map(s=>cbItem(s,picked.has(s.id))).join("");
+    if(r.list.length){ if(r.recent.length) h+=`<div class="cb-sec">${esc(cty||"全部")}測站</div>`; h+=r.list.map(s=>cbItem(s,picked.has(s.id))).join(""); }
+    if(!items.length) h=`<div class="cb-empty">找不到「${esc(inp.value)}」，試試站號、鄉鎮名，或把縣市改成全部</div>`;
+    else if(r.total>r.list.length) h+=`<div class="cb-empty">共 ${r.total} 站，只列前 ${r.list.length} 個，打字可縮小範圍</div>`;
+    box.innerHTML=h; box.classList.add("open"); hl();
+  };
+  const pick=i=>{ const s=items[i]; if(!s) return; box.classList.remove("open"); pushRecent(s.id); onPick(s.id); };
+  inp.addEventListener("focus",()=>{ if(inp.dataset.quiet){ delete inp.dataset.quiet; return; } inp.select(); draw(); });
+  inp.addEventListener("click",()=>{ if(!box.classList.contains("open")) draw(); });
+  inp.addEventListener("input",draw);
+  inp.addEventListener("keydown",e=>{
+    if(e.key==="ArrowDown"){ if(!box.classList.contains("open")) draw(); else { act=Math.min(items.length-1,act+1); hl(); } e.preventDefault(); }
+    else if(e.key==="ArrowUp"){ act=Math.max(0,act-1); hl(); e.preventDefault(); }
+    else if(e.key==="Enter"){ e.preventDefault();
+      if(box.classList.contains("open")&&act>=0) pick(act);
+      else if(!inp.value.trim()||resolveId(inp.value)) runQuery();   // 框已關閉/已選好 → Enter 就查詢
+    }
+    else if(e.key==="Escape"){ box.classList.remove("open"); }
+  });
+  inp.addEventListener("blur",()=>setTimeout(()=>box.classList.remove("open"),160));
+  box.addEventListener("mousedown",e=>{ const it=e.target.closest(".cb-it"); if(!it) return; e.preventDefault(); pick(items.findIndex(s=>s.id===it.dataset.id)); });
 }
 function resolveId(txt){ txt=(txt||"").trim();
   let m=txt.match(/（(.+?)）\s*$/)||txt.match(/\((.+?)\)\s*$/);
-  if(m&&byId[m[1]])return m[1]; if(byId[txt])return txt;
-  const h=STATIONS.find(s=>s.name===txt); return h?h.id:null; }
+  if(m&&byId[m[1]])return m[1]; if(byId[txt])return txt; if(byId[txt.toUpperCase()])return txt.toUpperCase();
+  const h=STATIONS.find(s=>norm(s.name)===norm(txt)); return h?h.id:null; }
+
+/* ---------------- 日期快選 ---------------- */
+const PRESETS=[{l:"近7天",d:7},{l:"近30天",d:30},{l:"近3個月",m:3},{l:"近半年",m:6},{l:"近1年",m:12},{l:"今年",y:0},{l:"去年",y:1},{l:"近5年",m:60},{l:"近10年",m:120},{l:"全部",all:1}];
+function presetRange(p){
+  const t=new Date(), e=fmtD(t);
+  if(p.all) return [DATA_MIN,e];
+  if(p.d){ const s=new Date(t); s.setDate(s.getDate()-p.d+1); return [fmtD(s),e]; }
+  if(p.m){ const s=new Date(t); s.setMonth(s.getMonth()-p.m); s.setDate(s.getDate()+1); return [fmtD(s),e]; }
+  const y=t.getFullYear()-p.y; return [`${y}-01-01`, p.y?`${y}-12-31`:e];
+}
+function presetList(){ return gran==="hour" ? PRESETS.filter(p=>p.d||p.m===3) : PRESETS; }   // 逐時量大，只給短區間
+function presetBar(k){ return `<div class="pres" id="${k}">`+presetList().map((p,i)=>`<button type="button" data-i="${i}">${p.l}</button>`).join("")+`</div>`; }
+function bindPresets(k,fn){ const el=$("#"+k); if(!el) return;
+  el.onclick=e=>{ const b=e.target.closest("button"); if(!b) return; const [s,t]=presetRange(presetList()[+b.dataset.i]); fn(s,t); renderPanel(); }; }
+function rangeInfo(s,e){ if(!s||!e) return ""; const n=dayCount(s,e);
+  return `<div class="rinfo">共 ${n} 天${gran==="hour"&&n>92?` · <span style="color:#fb923c">逐時超過 3 個月會很久</span>`:""}</div>`; }
+const SEASONS=[{l:"梅雨季 5–6月",s:"05-01",e:"06-30"},{l:"颱風季 7–10月",s:"07-01",e:"10-31"},{l:"夏季 6–8月",s:"06-01",e:"08-31"},{l:"整年",s:"01-01",e:"12-31"}];
+// 建立 flatpickr 區間選擇器
+function rangePicker(sel, defS, defE, onPick, extra){
+  const el=$(sel); if(!el||!window.flatpickr) return;
+  flatpickr(el,{ mode:"range", locale:"zh", dateFormat:"Y-m-d",
+    minDate:DATA_MIN, maxDate:"today",
+    defaultDate:(defS&&defE)?[defS,defE]:null,
+    onChange:(dates)=>{ if(dates.length===2) onPick(fmtD(dates[0]),fmtD(dates[1])); }, ...(extra||{})});
+}
 
 /* ---------------- 動態面板 ---------------- */
 let panelCounty="";   // 多站模式的縣市篩選暫存
 const hourNote = `<div class="tip">🕐 逐時：時間範圍會逐月向 CODiS 現抓，範圍越大越久，建議一次抓 1～3 個月。</div>`;
+let refocusId=null;   // 重畫面板後要把游標放回哪個框（連續加站用）
 function renderPanel(){
   const isHour=gran==="hour";
   let html="";
   if(mode==="multi"){
-    html=`<div class="ptitle">① 選測站（可多個）<span class="badge">疊在同一張圖比較</span></div>
+    const n=G.multi.stations.length;
+    html=`<div class="ptitle">① 選測站（可多個）<span class="badge">疊在同一張圖比較 · ${n}/8</span>${n?`<button class="lnk" id="mClr">全部清除</button>`:""}</div>
       <label>縣市（縮小搜尋範圍）</label>${countySelect("mCty",panelCounty)}
       <label>加入測站</label>
-      <div class="addrow">${stationInput("mStn","mDl",panelCounty,"")}<button class="ico" id="mAdd">＋</button></div>
-      ${chipsHtml(G.multi.stations.map((s,i)=>({color:COLORS[i%8],main:s.name,sub:s.id+" · "+s.county})),"已選","mChips")}
+      <div class="addrow">${stationBox("mStn","")}</div>
+      ${chipsHtml(G.multi.stations.map((s,i)=>({color:COLORS[i%8],main:esc(s.name),sub:s.id+" · "+esc(s.county)})),"mChips")}
       <div class="ptitle" style="margin-top:16px">② 時間範圍（所有站共用）</div>
       <input class="fp" id="mRange" readonly placeholder="點選日期範圍">
-      <div class="tip">💡 地圖上點測站可直接加入，最多 8 站。</div>${isHour?hourNote:""}`;
+      ${presetBar("mPre")}${rangeInfo(G.multi.start,G.multi.end)}
+      <div class="tip">💡 地圖上點測站也能直接加入，最多 8 站。</div>${isHour?hourNote:""}`;
   }
   else if(mode==="year"){
-    const st=G.year.station;
+    const st=G.year.station, yNow=new Date().getFullYear(), yrs=[];
+    for(let y=+DATA_MIN.slice(0,4);y<=yNow;y++) yrs.push(y);
+    const sorted=[...G.year.years].sort();
     html=`<div class="ptitle">① 選一個測站<span class="badge">比不同年的同一期間</span></div>
       <label>縣市</label>${countySelect("yCty",st?st.county:"")}
-      <label>測站</label>${stationInput("yStn","yDl",st?st.county:"",st?st.name+"（"+st.id+"）":"")}
-      <div class="ptitle" style="margin-top:16px">② 期間範本<span class="badge">只取月-日，套到每個年份</span></div>
+      <label>測站</label>${stationBox("yStn",st?st.name+"（"+st.id+"）":"")}
+      <div class="ptitle" style="margin-top:16px">② 期間<span class="badge">只取月-日，套到每個年份</span></div>
       <input class="fp" id="yRange" readonly placeholder="點選一段代表期間（如 6/1~6/30）">
-      <div class="ptitle" style="margin-top:16px">③ 要比的年份</div>
-      <div class="addrow"><input type="number" id="yAddYr" placeholder="例如 2023" min="1990" max="2026"><button class="ico" id="yAdd">＋</button></div>
-      ${chipsHtml(G.year.years.map((y,i)=>({color:COLORS[i%8],main:y+" 年",sub:""})),"年份","yChips")}${isHour?hourNote:""}`;
+      <div class="pres" id="ySea">${SEASONS.map((s,i)=>`<button type="button" data-i="${i}">${s.l}</button>`).join("")}</div>
+      <div class="rinfo">目前：${G.year.tmplS.slice(5).replace("-","/")} ～ ${G.year.tmplE.slice(5).replace("-","/")}</div>
+      <div class="ptitle" style="margin-top:16px">③ 要比的年份<span class="badge">點一下選/取消</span></div>
+      <div class="ychips" id="yYears">${yrs.map(y=>{ const i=sorted.indexOf(y);
+        return `<button type="button" data-y="${y}" class="${i>=0?"on":""}" ${i>=0?`style="background:${COLORS[i%8]}"`:""}>${y}</button>`; }).join("")}</div>
+      <div class="tip">顏色＝圖上的線條顏色。</div>${isHour?hourNote:""}`;
   }
   else if(mode==="period"){
     const st=G.period.station;
     html=`<div class="ptitle">① 選一個測站<span class="badge">比自訂的不同時段</span></div>
       <label>縣市</label>${countySelect("pCty",st?st.county:"")}
-      <label>測站</label>${stationInput("pStn","pDl",st?st.county:"",st?st.name+"（"+st.id+"）":"")}
-      <div class="ptitle" style="margin-top:16px">② 加入時段（可多段）</div>
-      <div class="addrow"><input class="fp" id="pRange" readonly placeholder="點選一段時間" style="flex:1"><button class="ico" id="pAdd">＋</button></div>
-      ${chipsHtml(G.period.periods.map((p,i)=>({color:COLORS[i%8],main:p.start+" ~ "+p.end,sub:""})),"時段","pChips")}${isHour?hourNote:""}`;
+      <label>測站</label>${stationBox("pStn",st?st.name+"（"+st.id+"）":"")}
+      <div class="ptitle" style="margin-top:16px">② 加入時段（選好就自動加入，可多段）${G.period.periods.length?`<button class="lnk" id="pClr">全部清除</button>`:""}</div>
+      <input class="fp" id="pRange" readonly placeholder="點選一段時間 → 自動加入">
+      ${presetBar("pPre")}
+      ${chipsHtml(G.period.periods.map((p,i)=>({color:COLORS[i%8],main:p.start+" ~ "+p.end,sub:dayCount(p.start,p.end)+" 天"})),"pChips")}${isHour?hourNote:""}`;
   }
   else if(mode==="rank"){
     const aggLab=curElem.agg==="sum"?"區間總和":curElem.agg==="min"?"區間最低":curElem.agg==="max"?"區間最高":"區間平均";
     html=`<div class="ptitle">① 範圍<span class="badge">全台或選一個縣市</span></div>
-      <label>縣市（全台＝載入 1265 站，第一次較久）</label>${countySelect("rCty",G.rank.county)}
+      <label>縣市（全台＝載入 ${STATIONS.length} 站，第一次較久）</label>${countySelect("rCty",G.rank.county)}
       <div class="ptitle" style="margin-top:16px">② 時間範圍</div>
       <input class="fp" id="rRange" readonly placeholder="點選日期範圍">
+      ${presetBar("rPre")}${rangeInfo(G.rank.start,G.rank.end)}
       <div class="ptitle" style="margin-top:16px">③ 排行要素：${curElem.name}<span class="badge">${aggLab}</span></div>
-      <div class="tip">切上方「要素」排不同榜（雨量／溫度／陣風…）。查詢後<b>地圖同步著色</b>：顏色越暖代表數值越大（放大地圖看個別站）。</div>
+      <div class="tip">切上方「要素」排不同榜（雨量／溫度／陣風…）。查詢後<b>地圖同步著色</b>：顏色越暖代表數值越大；點地圖上的站可看名次。</div>
       <div class="tip">💡 全台掃描需載各站資料，第一次較久，之後有快取就快。</div>`;
   }
   else { // disaster
-    const st=G.disaster.station, ths=curThresholds();
+    const D=G.disaster, st=D.station, area=D.scope==="area";
+    const ths=area?(curElem.k==="p"?THRESH.p_day:THRESH[curElem.k]||null):curThresholds();
     const thHtml=ths? ths.map(t=>`<span style="color:${t.c}">${t.l} ${t.dir==="below"?"≤":"≥"}${t.v}${curElem.unit}</span>`).join("　") : "（此要素無官方災害門檻，請切雨量/陣風/氣溫）";
-    html=`<div class="ptitle">① 選一個測站<span class="badge">掃描災害事件</span></div>
-      <label>縣市</label>${countySelect("dCty",st?st.county:"")}
-      <label>測站</label>${stationInput("dStn","dDl",st?st.county:"",st?st.name+"（"+st.id+"）":"")}
+    html=`<div class="ptitle">① 範圍<span class="badge">一個站，或整個縣市所有站</span></div>
+      <div class="seg" id="dScope" style="margin-bottom:4px"><button type="button" data-s="station" class="${area?"":"on"}">單一測站</button><button type="button" data-s="area" class="${area?"on":""}">整個地區</button></div>
+      ${area?`<label>縣市（不選＝全台）</label>${countySelect("dACty",D.county)}
+        <div class="tip">會掃描這個範圍內<b>每一個測站</b>，統計各災害等級出現幾次、哪幾天、實際數值多少。第一次載入較久。</div>`
+      :`<label>縣市</label>${countySelect("dCty",st?st.county:"")}
+        <label>測站</label>${stationBox("dStn",st?st.name+"（"+st.id+"）":"")}`}
       <div class="ptitle" style="margin-top:16px">② 掃描範圍</div>
       <input class="fp" id="dRange" readonly placeholder="點選日期範圍">
-      <div class="ptitle" style="margin-top:16px">③ 門檻（依上方要素：${curElem.name}）</div>
+      ${presetBar("dPre")}${rangeInfo(D.start,D.end)}
+      <div class="ptitle" style="margin-top:16px">③ 門檻（依上方要素：${curElem.name}${area?"・逐日":""}）</div>
       <div class="tip">${thHtml}</div>
+      ${area&&gran!=="day"?`<div class="tip" style="color:#fb923c">地區掃描一律用「逐日」資料（官方豪雨等門檻是以日雨量計）。</div>`:""}
       <div class="tip">💡 切上方「要素」掃不同災害：雨量→豪雨等級、最大陣風→強風等級、最高溫→高溫、最低溫→低溫。</div>`;
   }
   $("#panel").innerHTML=html;
   bindPanel();
+  if(refocusId&&$("#"+refocusId)){ const el=$("#"+refocusId); el.dataset.quiet="1"; el.focus(); }
+  refocusId=null;
 }
-// 建立 flatpickr 區間選擇器
-function fmtD(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
-function rangePicker(sel, defS, defE, onPick){
-  const el=$(sel); if(!el||!window.flatpickr) return;
-  flatpickr(el,{ mode:"range", locale:"zh", dateFormat:"Y-m-d",
-    defaultDate:(defS&&defE)?[defS,defE]:null,
-    onChange:(dates)=>{ if(dates.length===2) onPick(fmtD(dates[0]),fmtD(dates[1])); }});
-}
-function chipsHtml(items,title,cls){
+function chipsHtml(items,cls){
   if(!items.length) return `<div class="empty-chip">尚未加入</div>`;
   return `<div class="chips" id="${cls}">`+items.map((it,i)=>`<div class="chip">
     <span class="dot" style="background:${it.color}"></span>
     <span class="t">${it.main}${it.sub?`<br><span class="sub">${it.sub}</span>`:""}</span>
-    <button class="x" data-i="${i}">×</button></div>`).join("")+`</div>`;
+    <button class="x" data-i="${i}" title="移除">×</button></div>`).join("")+`</div>`;
+}
+// 單站模式共用：縣市 + 測站框
+function bindSingle(pref,key){
+  const g=G[key];
+  $(`#${pref}Cty`).onchange=e=>{ g._cty=e.target.value; filterMapByCounty(e.target.value); $(`#${pref}Stn`).focus(); };
+  bindStationBox(`${pref}Stn`,()=>g._cty??(g.station?g.station.county:""),id=>{
+    const s=byId[id]; g.station={id,name:s.name,county:s.county}; g._cty=undefined; focusMap(id); renderPanel(); });
 }
 function bindPanel(){
   if(mode==="multi"){
-    $("#mCty").onchange=e=>{panelCounty=e.target.value; filterMapByCounty(e.target.value); renderPanel();};
-    $("#mAdd").onclick=()=>{const id=resolveId($("#mStn").value); if(id) addMultiStation(id);};
-    $("#mStn").onchange=()=>{const id=resolveId($("#mStn").value); if(id) addMultiStation(id);};
-    rangePicker("#mRange",G.multi.start,G.multi.end,(s,e)=>{G.multi.start=s;G.multi.end=e;});
+    $("#mCty").onchange=e=>{panelCounty=e.target.value; filterMapByCounty(e.target.value); renderPanel(); $("#mStn").focus();};   // 換縣市 → 直接展開該縣市測站清單
+    bindStationBox("mStn",()=>panelCounty,id=>{ refocusId="mStn"; addMultiStation(id); },()=>G.multi.stations.map(s=>s.id));
+    rangePicker("#mRange",G.multi.start,G.multi.end,(s,e)=>{G.multi.start=s;G.multi.end=e;renderPanel();});
+    bindPresets("mPre",(s,e)=>{G.multi.start=s;G.multi.end=e;});
     bindChipRemove("mChips",i=>{G.multi.stations.splice(i,1);renderPanel();});
+    if($("#mClr")) $("#mClr").onclick=()=>{G.multi.stations=[];renderPanel();};
   }
   else if(mode==="year"){
-    $("#yCty").onchange=e=>{ if(G.year.station)G.year.station.county=e.target.value; filterMapByCounty(e.target.value); renderPanel(); };
-    $("#yStn").onchange=()=>{const id=resolveId($("#yStn").value); if(id){const s=byId[id];G.year.station={id,name:s.name,county:s.county};focusMap(id);renderPanel();}};
-    rangePicker("#yRange",G.year.tmplS,G.year.tmplE,(s,e)=>{G.year.tmplS=s;G.year.tmplE=e;});
-    $("#yAdd").onclick=()=>{const y=parseInt($("#yAddYr").value); if(y&&!G.year.years.includes(y)){G.year.years.push(y);G.year.years.sort();renderPanel();}};
-    bindChipRemove("yChips",i=>{G.year.years.splice(i,1);renderPanel();});
+    bindSingle("y","year");
+    rangePicker("#yRange",G.year.tmplS,G.year.tmplE,(s,e)=>{G.year.tmplS=s;G.year.tmplE=e;renderPanel();},{minDate:null,maxDate:null,altInput:true,altFormat:"n/j",altInputClass:"fp"});
+    $("#ySea").onclick=e=>{ const b=e.target.closest("button"); if(!b)return; const s=SEASONS[+b.dataset.i], y=new Date().getFullYear()-1;
+      G.year.tmplS=`${y}-${s.s}`; G.year.tmplE=`${y}-${s.e}`; renderPanel(); };
+    $("#yYears").onclick=e=>{ const b=e.target.closest("button"); if(!b)return; const y=+b.dataset.y, i=G.year.years.indexOf(y);
+      if(i>=0) G.year.years.splice(i,1); else if(G.year.years.length<8) G.year.years.push(y); else toast("最多 8 個年份");
+      G.year.years.sort(); renderPanel(); };
   }
   else if(mode==="period"){
-    $("#pCty").onchange=e=>{ if(G.period.station)G.period.station.county=e.target.value; filterMapByCounty(e.target.value); renderPanel(); };
-    $("#pStn").onchange=()=>{const id=resolveId($("#pStn").value); if(id){const s=byId[id];G.period.station={id,name:s.name,county:s.county};focusMap(id);renderPanel();}};
-    rangePicker("#pRange",G.period.addS,G.period.addE,(s,e)=>{G.period.addS=s;G.period.addE=e;});
-    $("#pAdd").onclick=()=>{ if(G.period.addS&&G.period.addE){G.period.periods.push({start:G.period.addS,end:G.period.addE});renderPanel();} };
+    bindSingle("p","period");
+    const addP=(s,e)=>{ if(G.period.periods.some(p=>p.start===s&&p.end===e)){ toast("這個時段已經加過了"); return; }
+      if(G.period.periods.length>=8){ toast("最多 8 個時段"); return; }
+      G.period.periods.push({start:s,end:e}); };
+    rangePicker("#pRange","","",(s,e)=>{ addP(s,e); renderPanel(); });
+    bindPresets("pPre",addP);
     bindChipRemove("pChips",i=>{G.period.periods.splice(i,1);renderPanel();});
+    if($("#pClr")) $("#pClr").onclick=()=>{G.period.periods=[];renderPanel();};
   }
   else if(mode==="rank"){
     $("#rCty").onchange=e=>{G.rank.county=e.target.value; filterMapByCounty(e.target.value);};
-    rangePicker("#rRange",G.rank.start,G.rank.end,(s,e)=>{G.rank.start=s;G.rank.end=e;});
+    rangePicker("#rRange",G.rank.start,G.rank.end,(s,e)=>{G.rank.start=s;G.rank.end=e;renderPanel();});
+    bindPresets("rPre",(s,e)=>{G.rank.start=s;G.rank.end=e;});
   }
   else {
-    $("#dCty").onchange=e=>{ if(G.disaster.station)G.disaster.station.county=e.target.value; filterMapByCounty(e.target.value); renderPanel(); };
-    $("#dStn").onchange=()=>{const id=resolveId($("#dStn").value); if(id){const s=byId[id];G.disaster.station={id,name:s.name,county:s.county};focusMap(id);renderPanel();}};
-    rangePicker("#dRange",G.disaster.start,G.disaster.end,(s,e)=>{G.disaster.start=s;G.disaster.end=e;});
+    $("#dScope").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; const D=G.disaster; D.scope=b.dataset.s;
+      if(D.scope==="area"){ if(!D._areaInit){ D._areaInit=1; [D.start,D.end]=presetRange(PRESETS.find(p=>p.m===120)); } filterMapByCounty(D.county); }
+      renderPanel(); };
+    if(G.disaster.scope==="area") $("#dACty").onchange=e=>{ G.disaster.county=e.target.value; filterMapByCounty(e.target.value); };
+    else bindSingle("d","disaster");
+    rangePicker("#dRange",G.disaster.start,G.disaster.end,(s,e)=>{G.disaster.start=s;G.disaster.end=e;renderPanel();});
+    bindPresets("dPre",(s,e)=>{G.disaster.start=s;G.disaster.end=e;});
   }
 }
 function bindChipRemove(cls,fn){ const el=$("#"+cls); if(!el)return;
   el.querySelectorAll(".x").forEach(b=>b.onclick=()=>fn(+b.dataset.i)); }
 function addMultiStation(id){
-  if(G.multi.stations.length>=8) return;
-  if(G.multi.stations.some(s=>s.id===id)) return;
-  const s=byId[id]; G.multi.stations.push({id,name:s.name,county:s.county}); renderPanel();
+  if(G.multi.stations.some(s=>s.id===id)){ toast("這個站已經加入了"); renderPanel(); return; }
+  if(G.multi.stations.length>=8){ toast("最多 8 站，請先移除一站"); renderPanel(); return; }
+  const s=byId[id]; G.multi.stations.push({id,name:s.name,county:s.county});
+  if(stnRetired(s)) toast(`${s.name} ${s.end.slice(0,4)} 年已撤站，可能查不到近年資料`);
+  renderPanel();
 }
 
 /* ---------------- 取資料 ---------------- */
 async function getDaily(id){
-  if(!dailyCache[id]) dailyCache[id]=await fetch(`${DATA_BASE}/daily/${id}.json`).then(r=>r.json()).catch(()=>({daily:{}}));
+  if(!dailyCache[id]) dailyCache[id]=await fetch(`${DATA_BASE}/daily/${id}.json`,{cache:"no-cache"}).then(r=>r.json()).catch(()=>({daily:{}}));
   return dailyCache[id].daily||{};
 }
 async function getHourMonth(id,ym){ const k=id+"|"+ym;
@@ -490,16 +749,17 @@ async function getHourMonth(id,ym){ const k=id+"|"+ym;
     try{
       const r=await fetch(`${HOURLY_BASE}/api/hourly?id=${encodeURIComponent(id)}&month=${ym}`,{signal:AbortSignal.timeout(75000)});
       hourlyCache[k]=(await r.json()).hourly||{};
-    }catch(e){ hourBackendFailed=true; hourlyCache[k]={}; }
+    }catch(e){ hourBackendFailed=true; return {}; }   // 失敗不寫快取，下次可重試
   }
   return hourlyCache[k]; }
 function monthsBetween(s,e){const out=[];let y=+s.slice(0,4),m=+s.slice(5,7);const ey=+e.slice(0,4),em=+e.slice(5,7);
   while(y<ey||(y===ey&&m<=em)){out.push(`${y}-${pad(m)}`);m++;if(m>12){m=1;y++;}}return out;}
 function pickElem(arr){ return Array.isArray(arr)? arr[curElem.idx] : null; }
-function aggElem(vals){
+function aggElem(vals,el){
+  el=el||curElem;
   const nums=vals.filter(v=>typeof v==="number");
   if(!nums.length) return null;
-  switch(curElem.agg){
+  switch(el.agg){
     case "sum": return Math.round(nums.reduce((a,b)=>a+b,0)*10)/10;
     case "max": return Math.max(...nums);
     case "min": return Math.min(...nums);
@@ -529,86 +789,93 @@ function buildSeries(){
   if(mode==="year"){
     const st=G.year.station; if(!st||!G.year.tmplS||!G.year.tmplE) return {align:"offset",list:[]};
     const mmS=G.year.tmplS.slice(5), mmE=G.year.tmplE.slice(5);
-    return {align:"offset", list:G.year.years.map((y,i)=>
+    return {align:"offset", list:[...G.year.years].sort().map((y,i)=>
       ({id:st.id,name:st.name,start:`${y}-${mmS}`,end:`${y}-${mmE}`,color:COLORS[i%8],label:y+"年"}))};
   }
   const st=G.period.station; if(!st) return {align:"offset",list:[]};
   return {align:"offset", list:G.period.periods.map((p,i)=>({id:st.id,name:st.name,start:p.start,end:p.end,color:COLORS[i%8],label:p.start+"~"+p.end}))};
 }
 
-let hourBackendFailed=false;
-function hourLoadHint(){ return gran==="hour" ? (STATIC?"（雲端逐時首次可能等後端喚醒 30-60 秒…）":"（逐時向 CODiS 現抓，請稍候）") : ""; }
+let hourBackendFailed=false, QID=0;
+function hourLoadHint(){ return gran==="hour" ? (STATIC?"（逐時首次可能要等後端喚醒…）":"（逐時向 CODiS 現抓，請稍候）") : ""; }
 async function runQuery(){
-  if(mode==="rank") return runRank();
-  if(mode==="disaster") return runDisaster();
+  const my=++QID; saveState();
+  const btn=$("#go"); btn.disabled=true; btn.textContent="查詢中…";
+  try{
+    if(mode==="rank") await runRank(my);
+    else if(mode==="disaster") await runDisaster(my);
+    else await runSeries(my);
+  }finally{ if(my===QID){ btn.disabled=false; btn.textContent="查詢"; } }
+}
+async function runSeries(my){
   const {align,list}=buildSeries();
   if(!list.length){ $("#result").innerHTML=`<div class="empty">請先${mode==="multi"?"加入至少一個測站":"選測站並加入年份/時段"}。</div>`; showSheet(); return; }
   hourBackendFailed=false;
   $("#result").innerHTML=`<div class="empty">查詢中…${hourLoadHint()}</div>`; showSheet();
   const data=[];
-  for(const sp of list){ const pts=await seriesPoints(sp); data.push({sp,pts,map:Object.fromEntries(pts)}); }
+  for(const sp of list){ const pts=await seriesPoints(sp); if(my!==QID) return; data.push({sp,pts,map:Object.fromEntries(pts)}); }
   if(gran==="hour"&&hourBackendFailed){ $("#result").innerHTML=hourBackendMsg(); showSheet(); return; }
   renderResult(align,data);
 }
 
-function uLab(){return gran==="hour"?"時":(gran==="month"?"月":"日");}
-function statLine(pts){
-  const nums=pts.map(p=>p[1]).filter(v=>typeof v==="number");
-  if(!nums.length) return "此期間無資料";
-  const u=curElem.unit, max=Math.max(...nums), min=Math.min(...nums);
+function uLab(g){g=g||gran;return g==="hour"?"時":(g==="month"?"月":"日");}
+const granLab=g=>g==="hour"?"逐時":(g==="month"?"逐月":"逐日");
+function statLine(vals,el,g){
+  const nums=vals.filter(v=>typeof v==="number");
+  if(!nums.length) return "無資料";
+  const u=el.unit, max=Math.max(...nums), min=Math.min(...nums);
   const sum=nums.reduce((a,b)=>a+b,0), mean=sum/nums.length;
-  if(curElem.agg==="sum"){
-    const wet=pts.filter(p=>typeof p[1]==="number"&&p[1]>0).length;
-    return `總 ${sum.toFixed(1)}${u} · 最大 ${max.toFixed(1)}${u} · 有值 ${wet}/${pts.length}${uLab()}`;
+  if(el.agg==="sum"){
+    const wet=nums.filter(v=>v>0).length;
+    return `總 ${sum.toFixed(1)}${u} · 最大 ${max.toFixed(1)}${u} · 有值 ${wet}/${vals.length}${uLab(g)}`;
   }
   return `均 ${mean.toFixed(1)}${u} · 最高 ${max.toFixed(1)}${u} · 最低 ${min.toFixed(1)}${u}`;
 }
 function renderResult(align,data){
-  let labels,datasets,head,rows;
+  let head,rows;
   if(align==="date"){
     const keys=[...new Set(data.flatMap(d=>d.pts.map(p=>p[0])))].sort();
-    labels=keys;
-    datasets=data.map(d=>({label:d.sp.label,data:keys.map(k=>d.map[k]==null?null:d.map[k]),
-      borderColor:d.sp.color,backgroundColor:d.sp.color}));
     head=[gran==="hour"?"時間":(gran==="month"?"月份":"日期"),...data.map(d=>d.sp.label)];
     rows=keys.map(k=>[k,...data.map(d=>d.map[k]==null?"":d.map[k])]);
   }else{
     const maxN=Math.max(0,...data.map(d=>d.pts.length));
-    labels=Array.from({length:maxN},(_,i)=>`第${i+1}${uLab()}`);
-    datasets=data.map(d=>({label:d.sp.label,data:Array.from({length:maxN},(_,i)=>d.pts[i]?d.pts[i][1]:null),
-      borderColor:d.sp.color,backgroundColor:d.sp.color}));
     head=["序",...data.map(d=>d.sp.label+`(${d.sp.start.slice(0,gran==="hour"?7:10)}起)`)];
     rows=Array.from({length:maxN},(_,i)=>[`第${i+1}${uLab()}`,...data.map(d=>d.pts[i]?(d.pts[i][1]==null?"":d.pts[i][1]):"")]);
   }
-  lastRender={data,head,rows,align};
-
-  const legend=data.map(d=>`<div class="lg"><span class="dot" style="background:${d.sp.color}"></span><span>
-      <b>${d.sp.label}</b> <span class="s">${d.sp.name}（${d.sp.id}）</span><br>
-      <span class="s">${statLine(d.pts)}</span></span></div>`).join("");
-
-  $("#result").innerHTML=`<div class="legend">${legend}</div>
-    <div class="chartbox"><canvas id="chart"></canvas></div>
-    <div class="meta">${curElem.name}（${curElem.unit}） · ${data.length} 條系列 · ${gran==="hour"?"逐時":(gran==="month"?"逐月":"逐日")} · ${align==="date"?"按實際日期對齊":"按相對起點對齊"} · ${labels.length} 點</div>
-    <div class="tablebox"><table>
-      <thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead>
-      <tbody>${rows.map(r=>`<tr>${r.map((c,i)=>`<td class="${i>0&&curElem.agg==="sum"&&c!==""&&c>0?"wet":""}">${c===""?"–":c}</td>`).join("")}</tr>`).join("")}</tbody>
-    </table></div>`;
-  drawChart(labels,datasets);
-  $("#xlsx").disabled=false; $("#csv").disabled=false; $("#png").disabled=false;
-  $("#xlsx").onclick=exportXlsx; $("#csv").onclick=exportCsv;
-  $("#sheetTitle").textContent=`${curElem.name} · ${data.length} 條系列 · ${gran==="hour"?"逐時":(gran==="month"?"逐月":"逐日")}`;
-  showSheet();
+  setResult({kind:"series", keyKind:align==="date"?(gran==="hour"?"hour":gran==="month"?"month":"date"):"seq",
+    head, rows, numCols:data.map((_,j)=>j+1), series:data.map(d=>d.sp), align,
+    meta:[`${curElem.name}(${curElem.unit})對比`,...data.map(d=>`${d.sp.name}(${d.sp.id}) ${d.sp.start}~${d.sp.end}`)],
+    title:`${curElem.name} · ${data.length} 條系列 · ${granLab(gran)}`, png:true, view:seriesView});
 }
+function seriesView(rows){
+  const R=RES, el=R.elem, ord=inOrder(rows), hid=R.hidden||(R.hidden=new Set());
+  const legend=R.series.map((sp,j)=>`<div class="lg tog${hid.has(j)?" off":""}" data-j="${j}" title="點一下顯示／隱藏這條"><span class="dot" style="background:${sp.color}"></span><span>
+      <b>${esc(sp.label)}</b> <span class="s">${esc(sp.name)}（${sp.id}）</span><br>
+      <span class="s">${F.pick.length?"選取：":""}${statLine(VIEW.map(r=>r[j+1]),el,R.gran)}</span></span></div>`).join("");
+  const labels=ord.map(r=>r[0]);
+  const datasets=R.series.map((sp,j)=>({label:sp.label,data:ord.map(r=>r[j+1]===""?null:r[j+1]),borderColor:sp.color,backgroundColor:sp.color,hidden:hid.has(j)}));
+  $("#resView").innerHTML=`<div class="legend">${legend}</div>${CHINT}
+    <div class="chartbox"><canvas id="chart"></canvas></div>
+    <div class="meta">${el.name}（${el.unit}） · ${R.series.length} 條系列 · ${granLab(R.gran)} · ${R.align==="date"?"按實際日期對齊":"按相對起點對齊"} · ${rows.length} 點 · 點表頭排序、點列選取</div>
+    ${tableHtml(R.head,rows,{wet:el.agg==="sum"?R.numCols:null,bars:R.numCols})}`;
+  bindSort($("#resView"));
+  drawChart(labels,datasets,el);
+  const pk=new Set(F.pick); styleByPick(chart,i=>pk.has(String(labels[i])));
+  wireChart(chart,{onPick:(i,m)=>togglePick(labels[i],m,true), onRange:brushSeries(labels)});
+  $("#resView .legend").onclick=e=>{ const c=e.target.closest(".lg.tog"); if(c) toggleSeries(+c.dataset.j); };
+}
+// 顯示／隱藏某條系列（卡片、圖例都能點）
+function toggleSeries(j){ const h=RES.hidden; if(h.has(j)) h.delete(j); else h.add(j);
+  chart.setDatasetVisibility(j,!h.has(j)); chart.update();
+  document.querySelectorAll("#resView .lg.tog").forEach(el=>el.classList.toggle("off",h.has(+el.dataset.j))); }
 
-function drawChart(labels,datasets){
+function drawChart(labels,datasets,el){
   if(chart)chart.destroy();
-  const u=curElem.unit;
-  const type=curElem.chart;
-  const zero=curElem.agg==="sum";  // 溫度等不從 0 起，雨量/日照從 0 起
+  const u=el.unit, type=el.chart, zero=el.agg==="sum";  // 溫度等不從 0 起，雨量/日照從 0 起
   chart=new Chart($("#chart").getContext("2d"),{type,
     data:{labels,datasets:datasets.map(d=>({...d,borderWidth:type==="bar"?0:1.7,pointRadius:0,tension:.15,spanGaps:true}))},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
-      plugins:{legend:{labels:{color:"#cbd5e1",boxWidth:12,padding:14}},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:"index",intersect:false},
+      plugins:{legend:{labels:{color:"#cbd5e1",boxWidth:12,padding:14},onClick:(e,item)=>toggleSeries(item.datasetIndex)},
         tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y==null?"–":c.parsed.y} ${u}`}}},
       scales:{x:{ticks:{color:"#94a3b8",maxTicksLimit:14,autoSkip:true},grid:{display:false}},
         y:{beginAtZero:zero,ticks:{color:"#94a3b8"},grid:{color:"#334155"},title:{display:true,text:u,color:"#94a3b8"}}}}
@@ -616,63 +883,197 @@ function drawChart(labels,datasets){
 }
 
 /* ---------------- 災害分析 ---------------- */
-async function runDisaster(){
+async function runDisaster(my){
+  if(G.disaster.scope==="area") return runDisasterArea(my);
   const st=G.disaster.station;
   if(!st){ $("#result").innerHTML=`<div class="empty">請先選一個測站。</div>`; showSheet(); return; }
   const ths=curThresholds();
   hourBackendFailed=false;
-  $("#result").innerHTML=`<div class="empty">掃描 ${st.name} 的「${curElem.name}」災害事件中…${hourLoadHint()}</div>`; showSheet();
+  $("#result").innerHTML=`<div class="empty">掃描 ${esc(st.name)} 的「${curElem.name}」災害事件中…${hourLoadHint()}</div>`; showSheet();
   const pts=await seriesPoints({id:st.id,start:G.disaster.start,end:G.disaster.end});
+  if(my!==QID) return;
   if(gran==="hour"&&hourBackendFailed){ $("#result").innerHTML=hourBackendMsg(); showSheet(); return; }
-  renderDisaster(st,pts,ths);
+  const u=curElem.unit;
+  setResult({kind:"disaster", keyKind:gran==="hour"?"hour":gran==="month"?"month":"date",
+    head:[gran==="hour"?"時間":(gran==="month"?"月份":"日期"),`${curElem.name}(${u})`,"災害等級"],
+    rows:pts.map(([d,v])=>{const lv=classify(v,ths);return [d,v==null?"":v,lv?lv.l:""];}),
+    numCols:[1], catCol:2, catLabel:"災害等級", catAny:true, catOpts:ths?ths.map(t=>t.l):[],
+    station:st, ths, range:[G.disaster.start,G.disaster.end],
+    meta:[`${curElem.name}(${u}) 災害分析`,`${st.name}(${st.id}) ${G.disaster.start}~${G.disaster.end}`],
+    top:`<div style="margin-bottom:12px"><b style="font-size:16px">${esc(st.name)}</b> <span style="color:var(--muted);font-size:12.5px">${st.id} · ${esc(st.county)} · ${curElem.name} · ${G.disaster.start}~${G.disaster.end}</span></div>`,
+    title:`災害分析 · ${st.name} · ${curElem.name}`, png:true, view:disasterView});
 }
-function renderDisaster(st,pts,ths){
-  const u=curElem.unit, isBar=curElem.chart==="bar";
+function disasterView(rows){
+  const R=RES, el=R.elem, ths=R.ths, u=el.unit, isBar=el.chart==="bar", g=R.gran;
+  const ord=inOrder(rows), pts=ord.map(r=>[r[0],r[1]===""?null:r[1]]);
   const labels=pts.map(p=>p[0]), vals=pts.map(p=>p[1]);
   const below=!!(ths&&ths[0]&&ths[0].dir==="below");
-  const datasets=[{type:isBar?"bar":"line",label:curElem.name,data:vals,borderColor:"#38bdf8",backgroundColor:"#38bdf8",borderWidth:isBar?0:1.6,pointRadius:0,tension:.15,spanGaps:true}];
-  if(ths) for(const t of ths) datasets.push({type:"line",label:t.l,data:labels.map(()=>t.v),borderColor:t.c,borderDash:[6,4],borderWidth:1.3,pointRadius:0});
+  const datasets=[{type:isBar?"bar":"line",label:el.name,data:vals,borderColor:"#38bdf8",backgroundColor:"#38bdf8",borderWidth:isBar?0:1.6,pointRadius:0,tension:.15,spanGaps:true}];
+  if(ths) for(const t of ths) datasets.push({type:"line",label:t.l,data:labels.map(()=>t.v),borderColor:t.c,borderDash:[6,4],borderWidth:1.3,pointRadius:0,_ref:true});
 
   const events=[]; pts.forEach(([d,v])=>{const lv=classify(v,ths); if(lv) events.push([d,v,lv]);});
   const valid=pts.filter(p=>typeof p[1]==="number");
   const ranking=[...valid].sort((a,b)=> below? a[1]-b[1] : b[1]-a[1]).slice(0,10);
-  const cnt={}; if(ths) for(const t of ths) cnt[t.l]=events.filter(e=>e[2].l===t.l).length;
-
-  lastRender={ data:[{sp:{name:st.name,id:st.id,start:G.disaster.start,end:G.disaster.end}}],
-    head:[gran==="hour"?"時間":(gran==="month"?"月份":"日期"),`${curElem.name}(${u})`,"災害等級"],
-    rows:pts.map(([d,v])=>{const lv=classify(v,ths);return [d,v==null?"":v,lv?lv.l:""];}), align:"date" };
-
+  const src=F.pick.length?VIEW:rows;                       // 等級卡：有選取就只算選取的
+  const cnt={}; if(ths) for(const t of ths) cnt[t.l]=src.filter(r=>r[2]===t.l).length;
   const sum = ths
-    ? `<div class="legend">`+ths.map(t=>`<div class="lg"><span class="dot" style="background:${t.c}"></span><span><b>${t.l}</b><br><span class="s">${t.dir==="below"?"≤":"≥"}${t.v}${u} · ${cnt[t.l]||0} ${uLab()}</span></span></div>`).join("")+`</div>`
-    : `<div class="meta">「${curElem.name}」無官方災害門檻；下方仍給極端排行。要看門檻警示請切雨量／最大陣風／最高溫／最低溫。</div>`;
-  const hdLab=gran==="hour"?"時間":(gran==="month"?"月份":"日期");
+    ? `<div class="legend" id="dCards">`+ths.map(t=>`<div class="lg tog${F.cat===t.l?" act":""}" data-lv="${esc(t.l)}" title="點一下只看這個等級，再點取消"><span class="dot" style="background:${t.c}"></span><span><b>${t.l}</b><br><span class="s">${t.dir==="below"?"≤":"≥"}${t.v}${u} · ${F.pick.length?"選取中 ":""}${cnt[t.l]||0} ${uLab(g)}</span></span></div>`).join("")+`</div>`
+    : `<div class="meta">「${el.name}」無官方災害門檻；下方仍給極端排行。要看門檻警示請切雨量／最大陣風／最高溫／最低溫。</div>`;
+  const hdLab=g==="hour"?"時間":(g==="month"?"月份":"日期");
   const evRows = events.length
-    ? events.slice().sort((a,b)=> below? a[1]-b[1] : b[1]-a[1]).map(([d,v,lv])=>`<tr><td>${d}</td><td class="wet">${v}</td><td><span class="lvbadge" style="background:${lv.c}">${lv.l}</span></td></tr>`).join("")
-    : `<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:18px">此期間沒有達到災害門檻 👍</td></tr>`;
-  const rkRows = ranking.map(([d,v],i)=>{const lv=classify(v,ths);return `<tr><td>${i+1}</td><td>${d}</td><td class="wet">${v} ${u}</td><td>${lv?`<span class="lvbadge" style="background:${lv.c}">${lv.l}</span>`:""}</td></tr>`;}).join("");
+    ? events.slice().sort((a,b)=> below? a[1]-b[1] : b[1]-a[1]).map(([d,v,lv])=>`<tr${rowAttr(d)}><td>${d}</td><td class="wet">${v}</td><td><span class="lvbadge" style="background:${lv.c}">${lv.l}</span></td></tr>`).join("")
+    : `<tr><td colspan="3" class="nores">${ths?"這些資料裡沒有達到災害門檻 👍":"此要素沒有災害門檻"}</td></tr>`;
+  const rkRows = ranking.map(([d,v],i)=>{const lv=classify(v,ths);return `<tr${rowAttr(d)}><td>${i+1}</td><td>${d}</td><td class="wet">${v} ${u}</td><td>${lv?`<span class="lvbadge" style="background:${lv.c}">${lv.l}</span>`:""}</td></tr>`;}).join("")
+    || `<tr><td colspan="4" class="nores">沒有資料</td></tr>`;
+  const lvColor=Object.fromEntries((ths||[]).map(t=>[t.l,t.c]));
 
-  $("#result").innerHTML=`
-    <div style="margin-bottom:12px"><b style="font-size:16px">${st.name}</b> <span class="s" style="color:var(--muted)">${st.id} · ${st.county} · ${curElem.name} · ${G.disaster.start}~${G.disaster.end}</span></div>
-    ${sum}
+  $("#resView").innerHTML=`${sum}${CHINT}
     <div class="chartbox"><canvas id="chart"></canvas></div>
-    <div class="meta">⚠️ 達標災害事件 ${events.length} 筆</div>
-    <div class="tablebox" style="max-height:240px;margin-bottom:14px"><table>
-      <thead><tr><th>${hdLab}</th><th>${curElem.name}(${u})</th><th>等級</th></tr></thead><tbody>${evRows}</tbody></table></div>
-    <div class="meta">🏆 極端${below?"最低":"最高"}排行 Top ${ranking.length}</div>
+    <div class="meta">⚠️ 達標災害事件 ${events.length} 筆（點列＝在圖上標出那天）</div>
+    <div class="tablebox" style="max-height:240px"><table>
+      <thead><tr><th>${hdLab}</th><th>${el.name}(${u})</th><th>等級</th></tr></thead><tbody>${evRows}</tbody></table></div>
+    <div class="meta" style="margin-top:14px">🏆 極端${below?"最低":"最高"}排行 Top ${ranking.length}</div>
     <div class="tablebox" style="max-height:260px"><table>
-      <thead><tr><th>#</th><th>${hdLab}</th><th>${curElem.name}</th><th>等級</th></tr></thead><tbody>${rkRows}</tbody></table></div>`;
+      <thead><tr><th>#</th><th>${hdLab}</th><th>${el.name}</th><th>等級</th></tr></thead><tbody>${rkRows}</tbody></table></div>
+    <div class="meta" style="margin-top:14px">📋 明細 ${rows.length} 筆（點表頭排序、點列選取）</div>
+    ${tableHtml(R.head,rows,{wet:el.agg==="sum"?[1]:null,bars:[1],fmt:(i,c)=>i===2&&c?`<span class="lvbadge" style="background:${lvColor[c]||"#94a3b8"}">${esc(c)}</span>`:esc(c)})}`;
+  bindSort($("#resView"));
 
   if(chart) chart.destroy();
   chart=new Chart($("#chart").getContext("2d"),{data:{labels,datasets},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:"index",intersect:false},
       plugins:{legend:{labels:{color:"#cbd5e1",boxWidth:12,padding:12}},
         tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y==null?"–":c.parsed.y} ${u}`}}},
       scales:{x:{ticks:{color:"#94a3b8",maxTicksLimit:14,autoSkip:true},grid:{display:false}},
-        y:{beginAtZero:curElem.agg==="sum",ticks:{color:"#94a3b8"},grid:{color:"#334155"},title:{display:true,text:u,color:"#94a3b8"}}}}});
-  $("#xlsx").disabled=false; $("#csv").disabled=false; $("#png").disabled=false;
-  $("#xlsx").onclick=exportXlsx; $("#csv").onclick=exportCsv;
-  $("#sheetTitle").textContent=`災害分析 · ${st.name} · ${curElem.name}`;
+        y:{beginAtZero:el.agg==="sum",ticks:{color:"#94a3b8"},grid:{color:"#334155"},title:{display:true,text:u,color:"#94a3b8"}}}}});
+  const pk=new Set(F.pick); styleByPick(chart,i=>pk.has(String(labels[i])));
+  wireChart(chart,{onPick:(i,m)=>togglePick(labels[i],m,true), onRange:brushSeries(labels)});
+  if($("#dCards")) $("#dCards").onclick=e=>{ const c=e.target.closest("[data-lv]"); if(!c) return; F.cat=F.cat===c.dataset.lv?"":c.dataset.lv; renderFilterBar(); refresh(); };
+}
+
+/* ---------------- 災害分析：整個地區（縣市內所有測站） ---------------- */
+async function runDisasterArea(my){
+  const D=G.disaster, cty=D.county, s=D.start, e=D.end, u=curElem.unit, areaLab=cty||"全台";
+  const ths=curElem.k==="p"?THRESH.p_day:THRESH[curElem.k]||null;
+  if(!ths){ $("#result").innerHTML=`<div class="empty">「${curElem.name}」沒有官方災害門檻。<br>請把上方「要素」切到 雨量／最大陣風／平均風速／最高溫／最低溫。</div>`; showSheet(); return; }
+  if(!s||!e){ $("#result").innerHTML=`<div class="empty">請先選時間範圍。</div>`; showSheet(); return; }
+  const list=STATIONS.filter(x=>typeof x.lat==="number"&&(!cty||x.county===cty));
   showSheet();
+  await bulkLoadDaily(list.map(x=>x.id),(d,n)=>{ if(my===QID) $("#result").innerHTML=`<div class="empty">掃描${esc(areaLab)}的「${curElem.name}」災害事件…<br>已載入 ${d}/${n} 站</div>`; });
+  if(my!==QID) return;
+  // 各年／各月／各天「有資料的測站數」，下鑽時每一層都能對照
+  const rows=[]; let withData=0; const stnY={}, stnM={}, stnD={};
+  for(const st of list){ const daily=await getDaily(st.id); let has=false;
+    for(const [d,arr] of Object.entries(daily)){ if(d<s||d>e) continue;
+      const v=pickElem(arr); if(typeof v!=="number") continue; has=true;
+      (stnY[d.slice(0,4)]||(stnY[d.slice(0,4)]=new Set())).add(st.id);
+      (stnM[d.slice(0,7)]||(stnM[d.slice(0,7)]=new Set())).add(st.id);
+      stnD[d]=(stnD[d]||0)+1;
+      const lv=classify(v,ths); if(lv) rows.push([d,st.name,st.id,st.county,v,lv.l]); }
+    if(has) withData++; }
+  const below=ths[0].dir==="below";
+  rows.sort((a,b)=> a[0]<b[0]?-1 : a[0]>b[0]?1 : (below?a[4]-b[4]:b[4]-a[4]));
+  setResult({kind:"disasterArea", keyKind:"date", gran:"day",
+    head:["日期","測站","站號","縣市",`${curElem.name}(${u})`,"災害等級"], rows,
+    numCols:[4], textCols:[1,2,3], catCol:5, catLabel:"災害等級", catOpts:ths.map(t=>t.l),
+    ths, below, range:[s,e], nStations:list.length, withData, stnY, stnM, stnD,
+    meta:[`${curElem.name}(${u}) 地區災害分析（逐日）`,`${areaLab} ${s}~${e}　掃描 ${list.length} 站（${withData} 站有資料）`],
+    top:`<div style="margin-bottom:12px"><b style="font-size:16px">${esc(areaLab)} · ${curElem.name}災害統計</b>
+      <span style="color:var(--muted);font-size:12.5px">${s} ~ ${e} · 掃描 ${list.length} 站，其中 ${withData} 站這段期間有資料 · 逐日</span></div>`,
+    title:`地區災害 · ${areaLab} · ${curElem.name}`, png:true, view:areaView});
+}
+function dateList(s,e){ const out=[]; const d=new Date(s+"T00:00:00"), end=new Date(e+"T00:00:00");
+  while(d<=end){ out.push(fmtD(d)); d.setDate(d.getDate()+1); } return out; }
+function areaView(rows){
+  const R=RES, ths=R.ths, u=R.elem.unit, below=R.below, lvOf=Object.fromEntries(ths.map((t,i)=>[t.l,{...t,i}]));
+  const worse=(a,b)=> below? a<b : a>b;
+  // 目前看的範圍 → 決定圖表層級：年 → 月 → 日（Power BI 式下鑽）
+  const eff=[F.from&&F.from>R.range[0]?F.from:R.range[0], F.to&&F.to<R.range[1]?F.to:R.range[1]];
+  const span=dayCount(eff[0],eff[1]), lvl=span>730?"y":span>62?"m":"d";
+  const gk=d=>lvl==="y"?d.slice(0,4):lvl==="m"?d.slice(0,7):d;
+  const groups = lvl==="y" ? Array.from({length:+eff[1].slice(0,4)-+eff[0].slice(0,4)+1},(_,i)=>String(+eff[0].slice(0,4)+i))
+               : lvl==="m" ? monthsBetween(eff[0],eff[1]) : dateList(eff[0],eff[1]);
+  const byDayOf=rs=>{ const m=new Map();
+    for(const r of rs){ let o=m.get(r[0]);
+      if(!o){ o={d:r[0],n:0,v:r[4],st:r[1],id:r[2],lv:r[5]}; m.set(r[0],o); }
+      o.n++; if(worse(r[4],o.v)){ o.v=r[4]; o.st=r[1]; o.id=r[2]; o.lv=r[5]; } }
+    return [...m.values()]; };
+  const days=byDayOf(rows);
+  const src=F.pick.length?VIEW:rows, srcDays=F.pick.length?byDayOf(VIEW):days;   // 卡片：有選取就只算選取的
+  const pg=new Set(F.pick.map(k=>gk(k)));
+  // 各等級卡片（點一下只看該等級）
+  const cards=ths.map(t=>{ const rs=src.filter(r=>r[5]===t.l), ds=srcDays.filter(o=>o.lv===t.l);
+    let top=null; for(const r of rs) if(!top||worse(r[4],top[4])) top=r;
+    const dates=rs.map(r=>r[0]).sort();
+    return `<div class="lg tog${F.cat===t.l?" act":""}" data-lv="${esc(t.l)}" title="點一下只看這個等級，再點取消" style="min-width:230px;align-items:flex-start"><span class="dot" style="background:${t.c};margin-top:4px"></span><span>
+      <b>${t.l}</b> <span class="s">${t.dir==="below"?"≤":"≥"}${t.v}${u}</span><br>
+      <span style="font-size:18px;font-weight:700">${ds.length}</span> <span class="s">天${F.pick.length?"（選取中）":"（當天全區最嚴重是此級）"}</span><br>
+      <span class="s">全部站合計 ${rs.length} 站次</span><br>
+      ${top?`<span class="s">最極端：${top[0]} ${esc(top[1])} <b style="color:var(--ink)">${top[4]} ${u}</b></span><br>
+      <span class="s">首次 ${dates[0]}　最近 ${dates[dates.length-1]}</span>`:`<span class="s">這段範圍沒有出現</span>`}</span></div>`; }).join("");
+  // 每組（年／月／日）各等級天數
+  const cnt={}; for(const g of groups) cnt[g]=Object.fromEntries(ths.map(t=>[t.l,0]));
+  for(const o of days){ const g=gk(o.d); if(cnt[g]) cnt[g][o.lv]++; }
+  const stnOf=g=>lvl==="y"?(R.stnY[g]?R.stnY[g].size:0):lvl==="m"?(R.stnM[g]?R.stnM[g].size:0):(R.stnD[g]||0);
+  const gLab=lvl==="y"?"年":lvl==="m"?"月":"天", gHead=lvl==="y"?"年份":lvl==="m"?"月份":"日期";
+  const showG=lvl==="d"?groups.filter(g=>ths.some(t=>cnt[g][t.l])):groups;          // 逐日只列有事件的天
+  const yRows=showG.map(g=>`<tr data-g="${g}"${pg.has(g)?' class="pk"':""} title="${lvl==="d"?"點一下選取這天":"點一下往下看"}"><td>${g}${lvl==="y"?" 年":""}</td>${ths.map(t=>`<td>${cnt[g][t.l]||"–"}</td>`).join("")}<td><b>${ths.reduce((a,t)=>a+cnt[g][t.l],0)||"–"}</b></td><td style="color:var(--muted)">${stnOf(g)}</td></tr>`).join("")
+    || `<tr><td colspan="${ths.length+3}" class="nores">這段範圍沒有達到災害門檻的日子 👍</td></tr>`;
+  const tot=ths.map(t=>days.filter(o=>o.lv===t.l).length);
+  // 發生日期清單（新→舊）
+  const dsSorted=[...days].sort((a,b)=>a.d<b.d?1:-1), DMAX=500;
+  const dRows=dsSorted.slice(0,DMAX).map(o=>{ const t=lvOf[o.lv];
+    return `<tr${rowAttr(o.d,o.id)}><td>${o.d}</td><td><span class="lvbadge" style="background:${t.c}">${t.l}</span></td><td class="wet">${o.v} ${u}</td><td>${esc(o.st)} <span style="color:var(--muted)">${o.id}</span></td><td>${o.n}</td></tr>`; }).join("")
+    || `<tr><td colspan="5" class="nores">沒有達到災害門檻的日子 👍</td></tr>`;
+  const zoomed=!!(F.from||F.to);
+  const crumb=`<div class="crumb">📍 目前看：<b>${eff[0]} ～ ${eff[1]}</b>（每${gLab}一格）
+    ${zoomed?`<button class="up" id="aUp">↩ 回上一層</button><button class="up" id="aAll">⤒ 回到全部</button>`:""}
+    <span class="fhint">點長條／表格列＝往下看（年→月→日）· 左右拖曳＝框選多${gLab} · 點等級卡＝只看該等級</span></div>`;
+
+  $("#resView").innerHTML=`<div class="legend" id="aCards">${cards}</div>
+    ${crumb}
+    <div class="chartbox" style="height:clamp(240px,34vh,420px)"><canvas id="chart"></canvas></div>
+    <div class="tablebox" style="max-height:300px"><table>
+      <thead><tr><th>${gHead}</th>${ths.map(t=>`<th style="color:${t.c}">${t.l}</th>`).join("")}<th>合計</th><th title="這段期間有資料的測站數；早年測站較少，次數也可能偏少">有資料站數</th></tr></thead>
+      <tbody>${yRows}<tr><td><b>總計</b></td>${tot.map(n=>`<td><b>${n||"–"}</b></td>`).join("")}<td><b>${tot.reduce((a,b)=>a+b,0)||"–"}</b></td><td style="color:var(--muted)">${R.withData}</td></tr></tbody></table></div>
+    <div class="meta">⚠️ 早年測站較少（看最右欄），比較各年次數時要一起看。天數以「當天全區最嚴重等級」計，一天只算一次。</div>
+    <div class="meta" style="margin-top:14px">📅 發生日期 ${days.length} 天（新→舊；點列＝選取那天，地圖跳到該站）</div>
+    <div class="tablebox" style="max-height:340px"><table>
+      <thead><tr><th>日期</th><th>當天最嚴重</th><th>最${below?"低":"大"}值</th><th>發生測站</th><th>達標站數</th></tr></thead><tbody>${dRows}</tbody></table></div>
+    ${days.length>DMAX?`<div class="meta">只列最近 ${DMAX} 天；完整資料請匯出 Excel。</div>`:""}
+    <div class="meta" style="margin-top:14px">📋 全部達標紀錄 ${rows.length} 筆（每站每天一筆；點表頭排序、點列選取；匯出 Excel／CSV 就是這張表）</div>
+    ${tableHtml(R.head,rows,{wet:[4],bars:[4],fmt:(i,c)=>i===5?`<span class="lvbadge" style="background:${(lvOf[c]||{}).c||"#94a3b8"}">${esc(c)}</span>`:(i===4?`${c} ${u}`:esc(c))})}`;
+  bindSort($("#resView"));
+
+  // 下鑽：年 → 該年逐月；月 → 該月逐日；日 → 選取那天
+  R.drill=g=>{ if(lvl==="d"){ togglePick(g,false,true); return; }
+    const [a,b]=keysToRange(g,g,lvl==="y"?"year":"month"); setDateRange(a,b,`往下看：${g}`); };
+  if($("#aUp")) $("#aUp").onclick=()=>{
+    if(lvl==="d"){ const y=eff[0].slice(0,4); setDateRange(`${y}-01-01`,`${y}-12-31`); }
+    else { F.from=F.to=""; renderFilterBar(); refresh(); } };
+  if($("#aAll")) $("#aAll").onclick=()=>{ F.from=F.to=""; renderFilterBar(); refresh(); };
+  $("#aCards").onclick=e=>{ const c=e.target.closest("[data-lv]"); if(!c) return; F.cat=F.cat===c.dataset.lv?"":c.dataset.lv; renderFilterBar(); refresh(); };
+
+  // 圖：每組各等級天數（堆疊）
+  if(chart) chart.destroy();
+  chart=new Chart($("#chart").getContext("2d"),{type:"bar",
+    data:{labels:groups,datasets:ths.map(t=>({label:t.l,data:groups.map(g=>cnt[g][t.l]),backgroundColor:t.c,borderWidth:0}))},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:"index",intersect:false},
+      plugins:{legend:{labels:{color:"#cbd5e1",boxWidth:12,padding:12}},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y} 天`,
+        footer:it=>it.length?`有資料站數 ${stnOf(groups[it[0].dataIndex])} · ${lvl==="d"?"點一下選取":"點一下往下看"}`:""}}},
+      scales:{x:{stacked:true,ticks:{color:"#94a3b8",maxTicksLimit:lvl==="d"?16:40,autoSkip:true},grid:{display:false}},
+        y:{stacked:true,beginAtZero:true,ticks:{color:"#94a3b8",precision:0},grid:{color:"#334155"},title:{display:true,text:"天數",color:"#94a3b8"}}}}});
+  styleByPick(chart,i=>pg.has(groups[i]));
+  wireChart(chart,{onPick:(i,m)=>{ if(lvl==="d") togglePick(groups[i],m,true); else R.drill(groups[i]); },
+    onRange:(i0,i1)=>{ const [a,b]=keysToRange(groups[i0],groups[i1],lvl==="y"?"year":lvl==="m"?"month":"date"); setDateRange(a,b,`已框選 ${a} ～ ${b}`); }});
+  // 地圖：有達標的站依「最嚴重等級」上色，次數越多點越大；選取的日子只標當天出事的站
+  if(mode==="disaster"){ const per={}, pickSet=F.pick.length?new Set(F.pick):null;
+    for(const r of rows){ if(pickSet&&!pickSet.has(r[0])) continue;
+      const o=per[r[2]]||(per[r[2]]={n:0,i:-1}); o.n++; o.i=Math.max(o.i,lvOf[r[5]].i); }
+    rankColored=true;
+    for(const o of allMarkers){ const p=per[o.id];
+      if(!p) o.m.setStyle({radius:4,color:"#334155",weight:1,fillColor:"#475569",fillOpacity:.5});
+      else o.m.setStyle({radius:Math.min(12,5+Math.sqrt(p.n)),color:"#0b1220",weight:1,fillColor:ths[p.i].c,fillOpacity:.92}); } }
 }
 
 /* ---------------- 全台排行 + 地圖熱度 ---------------- */
@@ -692,65 +1093,384 @@ function rampColor(t){ t=Math.max(0,Math.min(1,t));
   for(let i=1;i<RAMP.length;i++){ if(t<=RAMP[i][0]){ const[t0,c0]=RAMP[i-1],[t1,c1]=RAMP[i]; return lerpHex(c0,c1,(t-t0)/((t1-t0)||1)); } }
   return RAMP[RAMP.length-1][1]; }
 // 依排行結果替地圖測站著色；tmin(低溫)反轉色階讓「越冷越暖色」代表越極端
-function colorMarkers(rows){
-  const m=Object.fromEntries(rows.map(r=>[r.id,r.val]));
-  const vals=rows.map(r=>r.val), mn=Math.min(...vals), mx=Math.max(...vals);
-  const below=curElem.k==="tmin";
+// shown：篩選後的站（其餘變灰）；色階固定用整次查詢的最小/最大值
+function colorMarkers(shown){
+  const R=RES, m=Object.fromEntries(shown.map(r=>[r[2],r[4]]));
   rankColored=true;
   for(const o of allMarkers){ const v=m[o.id];
     if(v==null){ o.m.setStyle({radius:4,color:"#334155",weight:1,fillColor:"#475569",fillOpacity:.5}); }
-    else { let t=mx>mn?(v-mn)/(mx-mn):.5; if(below)t=1-t;
-      o.m.setStyle({radius:7,color:"#0b1220",weight:1,fillColor:rampColor(t),fillOpacity:.92}); } }
+    else o.m.setStyle({radius:7,color:"#0b1220",weight:1,fillColor:rankColor(v),fillOpacity:.92}); }
 }
+function rankColor(v){ const R=RES; let t=R.mx>R.mn?(v-R.mn)/(R.mx-R.mn):.5; if(R.below)t=1-t; return rampColor(t); }
 function resetMarkers(){ if(!rankColored)return; rankColored=false;
   for(const o of allMarkers) o.m.setStyle({radius:5,color:"#1d4ed8",weight:1.4,fillColor:"#3b82f6",fillOpacity:.85}); }
 
-async function runRank(){
+async function runRank(my){
   const cty=G.rank.county, s=G.rank.start, e=G.rank.end;
   if(!s||!e){ $("#result").innerHTML=`<div class="empty">請先選時間範圍。</div>`; showSheet(); return; }
   const list=STATIONS.filter(x=>typeof x.lat==="number" && (!cty||x.county===cty));
   if(!list.length){ $("#result").innerHTML=`<div class="empty">此範圍沒有測站。</div>`; showSheet(); return; }
   showSheet();
-  await bulkLoadDaily(list.map(x=>x.id),(d,n)=>{ $("#result").innerHTML=`<div class="empty">${cty||"全台"}掃描中…<br>已載入 ${d}/${n} 站</div>`; });
+  await bulkLoadDaily(list.map(x=>x.id),(d,n)=>{ if(my===QID) $("#result").innerHTML=`<div class="empty">${esc(cty||"全台")}掃描中…<br>已載入 ${d}/${n} 站</div>`; });
+  if(my!==QID) return;
   const rows=[];
   for(const st of list){ const daily=await getDaily(st.id);
     const vals=Object.entries(daily).filter(([d])=>d>=s&&d<=e).map(([d,arr])=>pickElem(arr)).filter(v=>typeof v==="number");
     if(!vals.length) continue;
     rows.push({id:st.id,name:st.name,county:st.county,val:aggElem(vals)});
   }
-  const below=curElem.k==="tmin";
+  const below=curElem.k==="tmin", u=curElem.unit, ctyLab=cty||"全台";
   rows.sort((a,b)=> below? a.val-b.val : b.val-a.val);
-  if(mode==="rank") colorMarkers(rows);   // 使用者可能中途切模式
-  renderRank(rows);
-}
-function renderRank(rows){
-  const u=curElem.unit, cty=G.rank.county||"全台", below=curElem.k==="tmin";
   if(!rows.length){ $("#result").innerHTML=`<div class="empty">此期間全部測站都沒有「${curElem.name}」資料。</div>`; showSheet(); return; }
-  const vals=rows.map(r=>r.val), mn=Math.min(...vals), mx=Math.max(...vals);
-  const body=rows.map((r,i)=>{ let t=mx>mn?(r.val-mn)/(mx-mn):.5; if(below)t=1-t;
-    return `<tr><td>${i+1}</td><td><span class="dot" style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${rampColor(t)};margin-right:7px;vertical-align:middle"></span>${r.name}</td><td>${r.county}</td><td class="wet">${r.val} ${u}</td></tr>`; }).join("");
-  $("#result").innerHTML=`
-    <div style="margin-bottom:10px"><b style="font-size:16px">${cty} · ${curElem.name}排行</b>
-      <span class="s" style="color:var(--muted)">${G.rank.start} ~ ${G.rank.end} · ${rows.length} 站有資料 · 🗺 地圖已同步著色</span></div>
-    <div class="meta">🏆 ${below?"最低":"最高"}排行（第 1 名＝${below?"最極端低值":"最極端高值"}；放大地圖看各站顏色）</div>
-    <div class="tablebox" style="max-height:54vh"><table>
-      <thead><tr><th>#</th><th>測站</th><th>縣市</th><th>${curElem.name}(${u})</th></tr></thead>
-      <tbody>${body}</tbody></table></div>`;
-  lastRender={ data:[{sp:{name:cty,id:"-",start:G.rank.start,end:G.rank.end}}],
-    head:["#","測站","縣市",`${curElem.name}(${u})`],
-    rows:rows.map((r,i)=>[i+1,r.name,r.county,r.val]), align:"date" };
-  $("#xlsx").disabled=false; $("#csv").disabled=false; $("#png").disabled=true;  // 排行無圖表
+  const vals=rows.map(r=>r.val);
+  setResult({kind:"rank", keyKind:"none",
+    head:["#","測站","站號","縣市",`${curElem.name}(${u})`],
+    rows:rows.map((r,i)=>[i+1,r.name,r.id,r.county,r.val]),
+    numCols:[4], textCols:[1,2,3], catCol:cty?-1:3, catLabel:"縣市", catOpts:cty?[]:[...new Set(rows.map(r=>r.county))].sort(),
+    mn:Math.min(...vals), mx:Math.max(...vals), below,
+    meta:[`${curElem.name}(${u}) 排行`,`${ctyLab} ${s}~${e}`],
+    top:`<div style="margin-bottom:10px"><b style="font-size:16px">${esc(ctyLab)} · ${curElem.name}排行</b>
+      <span style="color:var(--muted);font-size:12.5px">${s} ~ ${e} · ${rows.length} 站有資料 · 🗺 地圖同步著色（跟著篩選變）</span></div>`,
+    title:`排行 · ${ctyLab} · ${curElem.name}`, png:true, view:rankView});
+}
+function rankView(rows){
+  const R=RES, below=R.below, u=R.elem.unit;
+  if(mode==="rank"){ colorMarkers(rows);   // 使用者可能中途切模式
+    for(const r of VIEW) if(F.pick.length){ const o=allMarkers.find(x=>x.id===r[2]); o&&o.m.setStyle({radius:11,color:"#f5f3ff",weight:3}); } }
+  const top=[...rows].sort((a,b)=>a[0]-b[0]).slice(0,20);
+  $("#resView").innerHTML=`<div class="meta">🏆 ${below?"最低":"最高"}前 ${top.length} 名（篩選後）</div>
+    <div class="chint">🖱 點長條或表格列＝選取並把地圖移到該站（Ctrl 多選）· 點地圖上的站也能選 · Esc＝取消</div>
+    <div class="chartbox" style="height:${70+top.length*24}px"><canvas id="chart"></canvas></div>
+    <div class="meta"># ＝全範圍名次，篩選後不變；點表頭可改排序</div>
+    ${tableHtml(R.head,rows,{wet:[4],bars:[4],fmt:(i,c,r)=>i===1?`<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${rankColor(r[4])};margin-right:7px;vertical-align:middle"></span>${esc(c)}`:(i===4?`${c} ${u}`:esc(c))})}`;
+  bindSort($("#resView"));
+  if(chart) chart.destroy();
+  chart=new Chart($("#chart").getContext("2d"),{type:"bar",
+    data:{labels:top.map(r=>`${r[0]}. ${r[1]}（${r[3]}）`),datasets:[{label:`${R.elem.name}(${u})`,data:top.map(r=>r[4]),backgroundColor:"#38bdf8",borderWidth:0}]},
+    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,animation:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.x} ${u}`}}},
+      scales:{x:{beginAtZero:R.elem.agg==="sum",ticks:{color:"#94a3b8"},grid:{color:"#334155"}},y:{ticks:{color:"#cbd5e1",autoSkip:false},grid:{display:false}}}}});
+  // 每條長條用地圖同一套色
+  chart.data.datasets[0].backgroundColor=top.map(r=>rankColor(r[4])); chart.update("none");
+  const pk=new Set(F.pick), cols=top.map(r=>rankColor(r[4]));
+  if(pk.size){ chart.data.datasets[0].backgroundColor=top.map((r,i)=>pk.has(String(r[0]))?cols[i]:cols[i]+"38"); chart.update("none"); }
+  wireChart(chart,{onPick:(i,m)=>{ togglePick(top[i][0],m,true); focusMap(top[i][2]); }});
+}
+
+/* ================= 結果模型 + 結果內篩選 =================
+   每種查詢結果都整理成一張表 RES.rows（第 0 欄是日期/時間/序號/名次），
+   篩選條件 F 套在這張表上，圖表、統計、表格、匯出都吃篩選後的 VIEW。 */
+let RES=null, VIEW=[], CH=[], F=newFilter(), pendingF=null;   // CH=篩選後(不含選取)，VIEW=再套「選取」
+function newFilter(){ return {from:"",to:"",months:[],hFrom:"",hTo:"",conds:[],cat:"",text:"",sort:null,dir:-1,limit:"",pick:[]}; }
+const hasDateKey=R=>["date","month","hour"].includes(R.keyKind);
+function inOrder(rows){ return [...rows].sort((a,b)=>RES.idx.get(a)-RES.idx.get(b)); }   // 還原原本時間順序（圖表用）
+function setResult(res){
+  res.elem=curElem; res.gran=res.gran||gran; res.mode=mode;
+  res.idx=new Map(res.rows.map((r,i)=>[r,i]));
+  res.catCol=res.catCol??-1;
+  const old=RES;
+  if(pendingF){ F={...newFilter(),...pendingF}; pendingF=null; res._fromShare=true; }
+  else if(!old||old.kind!==res.kind||old.keyKind!==res.keyKind||old.head.length!==res.head.length||old.elem!==res.elem){
+    // 換了資料形狀：保留日期/月份/時段這類「跟數值無關」的篩選，其餘清掉
+    // 換模式則全部重來
+    const keep=old&&old.mode===res.mode&&hasDateKey(old)&&hasDateKey(res)?{from:F.from,to:F.to,months:F.months,hFrom:F.hFrom,hTo:F.hTo}:{};
+    F={...newFilter(),...keep};
+  }
+  if(res.keyKind!=="hour"){ F.hFrom=""; F.hTo=""; }
+  if(!Array.isArray(F.pick)||!res._fromShare) F.pick=[];   // 新查詢 → 清掉點選（分享連結進來的保留）
+  if(F.sort!=null&&F.sort>=res.head.length) F.sort=null;
+  F.conds=F.conds.filter(c=>c.col==="any"||c.col==="all"||res.numCols.includes(+c.col));
+  RES=res;
+  $("#result").innerHTML=`${res.top||""}<div class="fbar" id="fbar"></div><div class="fstat" id="fstat"></div><div id="resView"></div>`;
+  // 表格列點選（全部表格共用）：點一下＝選取、Ctrl/⌘＝多選；有站號的列同時把地圖移過去
+  $("#resView").addEventListener("click",e=>{
+    const g=e.target.closest("tr[data-g]"); if(g){ drillTo(g.dataset.g); return; }
+    const tr=e.target.closest("tbody tr[data-k]"); if(!tr) return;
+    togglePick(tr.dataset.k, e.ctrlKey||e.metaKey||e.shiftKey);
+    if(tr.dataset.id) focusMap(tr.dataset.id);
+  });
+  renderFilterBar(); refresh();
+  $("#xlsx").disabled=false; $("#csv").disabled=false; $("#png").disabled=!res.png;
   $("#xlsx").onclick=exportXlsx; $("#csv").onclick=exportCsv;
-  $("#sheetTitle").textContent=`排行 · ${cty} · ${curElem.name}`;
+  $("#sheetTitle").textContent=res.title;
   showSheet();
+}
+function testCond(v,c){
+  const n=typeof v==="number"?v:(v===""||v==null?NaN:Number(v));
+  if(c.op==="null") return isNaN(n);
+  if(c.op==="notnull") return !isNaN(n);
+  const a=parseFloat(c.a), b=parseFloat(c.b);
+  if(isNaN(a)) return true;            // 值還沒填 → 先不擋
+  if(isNaN(n)) return false;
+  switch(c.op){
+    case ">=": return n>=a; case "<=": return n<=a; case ">": return n>a; case "<": return n<a; case "=": return n===a;
+    case "between": return isNaN(b)? n>=a : (n>=Math.min(a,b)&&n<=Math.max(a,b));
+  }
+  return true;
+}
+function filterRows(noPick){
+  const pk=F.pick.length?new Set(F.pick):null;
+  const R=RES, dk=hasDateKey(R), cut=R.keyKind==="month"?7:10;
+  const f=F.from?F.from.slice(0,cut):"", t=F.to?F.to.slice(0,cut):"";
+  const hF=F.hFrom===""?null:+F.hFrom, hT=F.hTo===""?null:+F.hTo;
+  const q=norm(F.text.trim());
+  let out=R.rows.filter(r=>{
+    if(dk){ const k=String(r[0]), d=k.slice(0,cut);
+      if(f&&d<f) return false; if(t&&d>t) return false;
+      if(F.months.length&&!F.months.includes(+k.slice(5,7))) return false;
+      if(R.keyKind==="hour"&&(hF!=null||hT!=null)){ const h=+k.slice(11,13), lo=hF??0, hi=hT??23;
+        if(lo<=hi ? (h<lo||h>hi) : (h<lo&&h>hi)) return false; } }   // 允許跨半夜，如 22 點～4 點
+    if(R.catCol>=0&&F.cat){ const c=r[R.catCol]; if(F.cat==="__any"? !c : c!==F.cat) return false; }
+    if(q&&R.textCols&&!R.textCols.some(i=>norm(r[i]).includes(q))) return false;
+    if(!noPick&&pk&&!pk.has(String(r[0]))) return false;
+    for(const c of F.conds){
+      const cols=(c.col==="any"||c.col==="all")?R.numCols:[+c.col];
+      if(!(c.col==="all"? cols.every(i=>testCond(r[i],c)) : cols.some(i=>testCond(r[i],c)))) return false;
+    }
+    return true;
+  });
+  if(F.sort!=null){ const i=F.sort, dir=F.dir;
+    out.sort((a,b)=>{ const x=a[i], y=b[i], xn=x===""||x==null, yn=y===""||y==null;
+      if(xn&&yn) return 0; if(xn) return 1; if(yn) return -1;       // 缺測永遠排最後
+      if(i===0) return (R.idx.get(a)-R.idx.get(b))*dir;
+      return (typeof x==="number"&&typeof y==="number"? x-y : String(x).localeCompare(String(y),"zh-Hant"))*dir; }); }
+  const lim=parseInt(F.limit); if(lim>0) out=out.slice(0,lim);
+  return out;
+}
+function filterActive(){ return !!(F.from||F.to||F.months.length||F.hFrom!==""||F.hTo!==""||F.conds.length||F.cat||F.text.trim()||parseInt(F.limit)>0||F.pick.length); }
+function refresh(scrollPick){
+  const body=$("#result"), st=body.scrollTop, tbs=[...document.querySelectorAll("#resView .tablebox")].map(b=>b.scrollTop);
+  CH=filterRows(true); VIEW=F.pick.length?filterRows(false):CH;
+  const tot=RES.rows.length, on=filterActive();
+  $("#fcount").innerHTML= F.pick.length ? `已選取 <b>${VIEW.length}</b> 筆 · 篩選後 ${CH.length} / ${tot}` : on ? `符合 <b>${VIEW.length}</b> / ${tot} 筆` : `共 <b>${tot}</b> 筆`;
+  $("#fClr").style.display= on||F.sort!=null ? "" : "none";
+  renderChips();
+  // 篩選（或選取）後的快速統計（每個數值欄）
+  const el=RES.elem;
+  $("#fstat").innerHTML = on ? RES.numCols.map(i=>{ const nums=VIEW.map(r=>r[i]).filter(v=>typeof v==="number");
+      const pre=F.pick.length?"選取・":"";
+      if(!nums.length) return `<span>${pre}${esc(RES.head[i])}：無資料</span>`;
+      const s=nums.reduce((a,b)=>a+b,0);
+      return `<span>${pre}${esc(RES.head[i])}：${el.agg==="sum"&&RES.kind==="series"?`合計 <b>${s.toFixed(1)}</b> · `:""}平均 <b>${(s/nums.length).toFixed(1)}</b> · 最大 <b>${Math.max(...nums)}</b> · 最小 <b>${Math.min(...nums)}</b> ${el.unit}</span>`;
+    }).join("") : "";
+  RES.view(CH);
+  body.scrollTop=st;
+  document.querySelectorAll("#resView .tablebox").forEach((b,i)=>{ if(tbs[i]!=null) b.scrollTop=tbs[i]; });
+  if(scrollPick) document.querySelectorAll("#resView .tablebox").forEach(b=>{ const r=b.querySelector("tr.pk"); if(r) b.scrollTop=Math.max(0,r.offsetTop-b.clientHeight/2); });
+}
+/* ---------- 點選 / 框選 / 下鑽（Power BI 式交叉篩選） ---------- */
+function togglePick(key,multi,fromChart){
+  key=String(key); const i=F.pick.indexOf(key);
+  if(multi){ if(i>=0) F.pick.splice(i,1); else F.pick.push(key); }
+  else F.pick=(F.pick.length===1&&i===0)?[]:[key];
+  refresh(!!fromChart);
+}
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&RES&&F.pick.length&&!(e.target.closest&&e.target.closest("input,select"))){ F.pick=[]; refresh(); } });
+// 依選取狀態把沒選到的長條/點變淡
+function styleByPick(ch,isOn){
+  const any=F.pick.length>0;
+  ch.data.datasets.forEach(ds=>{ if(ds._ref) return;
+    const c=ds._c||(ds._c=ds.backgroundColor);
+    if(typeof c!=="string") return;
+    const n=ds.data.length;
+    ds.backgroundColor= any ? Array.from({length:n},(_,i)=>isOn(i)?c:c+"38") : c;
+    if((ds.type||ch.config.type)==="line"){ ds.pointRadius= any ? Array.from({length:n},(_,i)=>isOn(i)?4.5:0) : 0; ds.pointBackgroundColor=c; }
+  });
+  ch.update("none");
+}
+// 圖表：點一下＝選取、左右拖曳＝框選範圍
+function wireChart(ch,o){
+  ch.options.onClick=(evt)=>{
+    if(ch._brushed){ ch._brushed=false; return; }
+    const hy=ch.options.indexAxis==="y";
+    const hit=ch.getElementsAtEventForMode(evt,hy?"nearest":"index",{intersect:hy},false);
+    if(!hit.length) return;
+    const n=evt.native||{}, a=[hit[0].index, !!(n.ctrlKey||n.metaKey||n.shiftKey), hit[0].datasetIndex];
+    setTimeout(()=>o.onPick(...a),0);   // 等圖表處理完這次點擊再重畫，避免在自己的事件中被銷毀
+  };
+  ch.options.onHover=(evt,els)=>{ ch.canvas.style.cursor=els.length?"pointer":(o.onRange?"crosshair":"default"); };
+  ch.update("none");
+  if(o.onRange) attachBrush(ch,o.onRange);
+}
+function attachBrush(ch,onRange){
+  const cv=ch.canvas, box=cv.parentNode; let x0=null, ov=null;
+  const px=e=>e.clientX-cv.getBoundingClientRect().left;
+  cv.onpointerdown=e=>{ if(e.button!==0) return; x0=px(e); ov=document.createElement("div"); ov.className="brush"; ov.style.display="none"; box.appendChild(ov); try{cv.setPointerCapture(e.pointerId);}catch(_){} };
+  cv.onpointermove=e=>{ if(x0==null) return; const x=px(e), a=Math.min(x0,x), b=Math.max(x0,x), A=ch.chartArea;
+    if(b-a<6) return; ov.style.display="";
+    Object.assign(ov.style,{left:(cv.offsetLeft+Math.max(a,A.left))+"px",width:Math.max(0,Math.min(b,A.right)-Math.max(a,A.left))+"px",top:(cv.offsetTop+A.top)+"px",height:(A.bottom-A.top)+"px"}); };
+  cv.onpointerup=e=>{ if(x0==null) return; const x=px(e), a=Math.min(x0,x), b=Math.max(x0,x); x0=null; ov&&ov.remove(); ov=null;
+    if(b-a<8) return; ch._brushed=true;
+    const sx=ch.scales.x, n=ch.data.labels.length, cl=v=>Math.max(0,Math.min(n-1,Math.round(v)));
+    const i0=cl(sx.getValueForPixel(a)), i1=cl(sx.getValueForPixel(b)); setTimeout(()=>onRange(i0,i1),0); };
+  cv.onpointercancel=()=>{ x0=null; ov&&ov.remove(); ov=null; };
+}
+// 框選到的 key 範圍 → 日期篩選
+function keysToRange(k0,k1,kind){
+  if(kind==="year") return [`${k0}-01-01`,`${k1}-12-31`];
+  if(kind==="month") return [`${k0}-01`,lastDayOf(k1)];
+  return [String(k0).slice(0,10),String(k1).slice(0,10)];
+}
+function setDateRange(a,b,msg){
+  if(RES.range){ if(a<RES.range[0]) a=RES.range[0]; if(b>RES.range[1]) b=RES.range[1]; }
+  F.from=a; F.to=b; renderFilterBar(); refresh(); if(msg) toast(msg);
+}
+function brushSeries(labels){ return (i0,i1)=>{
+  if(RES.keyKind==="seq"){ F.pick=labels.slice(i0,i1+1).map(String); refresh(true); toast(`已選取第 ${i0+1}～${i1+1} ${uLab(RES.gran)}`); return; }
+  const [a,b]=keysToRange(labels[i0],labels[i1],RES.keyKind==="month"?"month":"date");
+  setDateRange(a,b,`已框選 ${a} ～ ${b}（上方標籤按 × 可取消）`); }; }
+// 目前篩選的小標籤，每個都能單獨移除
+function renderChips(){
+  const box=$("#fchips"); if(!box) return; const R=RES, items=[];
+  const add=(t,clr,cls)=>items.push({t,clr,cls});
+  if(F.from||F.to) add(`日期 ${F.from||"…"} ～ ${F.to||"…"}`,()=>{F.from=F.to="";});
+  if(F.months.length) add(`月份 ${F.months.join("、")}`,()=>{F.months=[];});
+  if(F.hFrom!==""||F.hTo!=="") add(`時段 ${F.hFrom||0}～${F.hTo===""?23:F.hTo} 點`,()=>{F.hFrom=F.hTo="";});
+  if(F.cat) add(`${R.catLabel}：${F.cat==="__any"?"任一達標":F.cat}`,()=>{F.cat="";});
+  if(F.text.trim()) add(`搜尋「${F.text.trim()}」`,()=>{F.text="";});
+  F.conds.forEach((c,k)=>{ const col=c.col==="any"?"任一系列":c.col==="all"?"全部系列":R.head[+c.col];
+    const op=((OPS.find(o=>o[0]===c.op)||[])[1]||c.op), noVal=c.op==="null"||c.op==="notnull";
+    if(!noVal&&c.a==="") return;
+    add(noVal?`${col}：${op}`:`${col} ${op.split(" ")[0]} ${c.a}${c.op==="between"?"～"+c.b:""}`,()=>{F.conds.splice(k,1);}); });
+  if(F.sort!=null) add(`排序：${R.head[F.sort]} ${F.dir>0?"↑":"↓"}`,()=>{F.sort=null;F.dir=-1;});
+  if(parseInt(F.limit)>0) add(`前 ${F.limit} 筆`,()=>{F.limit="";});
+  if(F.pick.length) add(`已選取 ${F.pick.length} 項${F.pick.length<=3?"："+F.pick.join("、"):""}`,()=>{F.pick=[];},"pick");
+  box.innerHTML=items.map((it,i)=>`<span class="fchip ${it.cls||""}">${esc(it.t)}<button data-i="${i}" title="移除這個條件">×</button></span>`).join("");
+  box.onclick=e=>{ const b=e.target.closest("button"); if(!b) return; items[+b.dataset.i].clr(); renderFilterBar(); refresh(); };
+}
+// 資料列的 key / 站號屬性（表格列點選用）
+function rowAttr(key,id){ key=String(key); return ` data-k="${esc(key)}"${id?` data-id="${esc(id)}"`:""}${F.pick.includes(key)?' class="pk"':""}`; }
+function drillTo(g){ if(RES&&RES.drill) RES.drill(g); }
+const CHINT=`<div class="chint">🖱 點圖＝選取（Ctrl 多選，再點一次取消）· 在圖上左右拖曳＝框選時間 · 點圖例＝顯示／隱藏 · Esc＝取消選取</div>`;
+let _rt=null; function refreshSoon(){ clearTimeout(_rt); _rt=setTimeout(refresh,220); }
+
+const OPS=[[">=","≥ 大於等於"],["<=","≤ 小於等於"],[">","> 大於"],["<","< 小於"],["=","= 等於"],["between","介於"],["notnull","有資料"],["null","缺測／無資料"]];
+function quickList(){
+  const R=RES, el=R.elem, first=String(R.numCols[0]), col=R.numCols.length>1?"any":first, q=[];
+  const ths = R.ths!==undefined ? R.ths : (R.gran==="month"||R.kind==="rank" ? null : (el.k==="p"?(R.gran==="hour"?THRESH.p_hour:THRESH.p_day):THRESH[el.k]||null));
+  if(el.agg==="sum"&&R.kind!=="disasterArea") q.push({l:el.k==="p"?"有下雨 >0":"有值 >0",c:{col,op:">",a:"0"}});
+  if(el.k==="p"&&R.gran==="day"&&R.kind!=="rank") q.push({l:"≥10mm",c:{col,op:">=",a:"10"}},{l:"≥50mm",c:{col,op:">=",a:"50"}});
+  if(ths&&!R.kind.startsWith("disaster")) for(const t of ths) q.push({l:`${t.l} ${t.dir==="below"?"≤":"≥"}${t.v}`,c:{col,op:t.dir==="below"?"<=":">=",a:String(t.v)}});
+  q.push({l:"排除缺測",c:{col:"all",op:"notnull"}});
+  q.push({l:"最大前 10",sort:-1},{l:"最小前 10",sort:1});
+  return q;
+}
+function renderFilterBar(){
+  const R=RES, dk=hasDateKey(R), wasClosed=$("#fbar")&&$("#fbar").classList.contains("closed");
+  const hOpts=cur=>`<option value="">不限</option>`+Array.from({length:24},(_,h)=>`<option value="${h}" ${String(cur)===String(h)?"selected":""}>${pad(h)} 點</option>`).join("");
+  let body=`<div class="frow">`;
+  if(dk){
+    body+=`<div class="fitem"><span class="flab">日期</span><input class="fp fdate" id="fDate" readonly placeholder="在結果裡再縮小日期"><button class="fbtn" id="fDateX" title="清除日期">×</button></div>`;
+    body+=`<div class="fitem"><span class="flab">月份</span><div class="mchips" id="fMon">${Array.from({length:12},(_,i)=>`<button type="button" data-m="${i+1}">${i+1}</button>`).join("")}</div>
+      <div class="pres" id="fSea"><button type="button" data-s="5,6">梅雨季</button><button type="button" data-s="7,8,9,10">颱風季</button><button type="button" data-s="6,7,8">夏</button><button type="button" data-s="12,1,2">冬</button></div></div>`;
+  }
+  if(R.keyKind==="hour") body+=`<div class="fitem"><span class="flab">時段</span><select id="fHF">${hOpts(F.hFrom)}</select> 到 <select id="fHT">${hOpts(F.hTo)}</select></div>`;
+  if(R.textCols) body+=`<div class="fitem"><span class="flab">搜尋</span><input id="fTxt" placeholder="站名、站號或縣市" value="${esc(F.text)}" style="width:170px"></div>`;
+  if(R.catCol>=0) body+=`<div class="fitem"><span class="flab">${R.catLabel}</span><select id="fCat"><option value="">全部</option>${R.catAny?`<option value="__any" ${F.cat==="__any"?"selected":""}>任一等級（有達標的）</option>`:""}${R.catOpts.map(c=>`<option ${F.cat===c?"selected":""}>${esc(c)}</option>`).join("")}</select></div>`;
+  body+=`</div>`;
+  body+=`<div class="frow"><div class="fitem grow"><span class="flab">數值條件</span><div class="fconds"><div id="fConds"></div><div><button class="fbtn" id="fAdd">＋ 加條件</button> <span class="fhint">多個條件要同時符合</span></div></div></div></div>`;
+  body+=`<div class="frow"><div class="fitem"><span class="flab">快速</span><div class="pres" id="fQuick">${quickList().map((q,i)=>`<button type="button" data-i="${i}">${q.l}</button>`).join("")}</div></div>
+    <div class="fitem"><span class="flab">只取前</span><input id="fLim" type="number" min="1" placeholder="全部" value="${esc(F.limit)}" style="width:84px"> 筆 <span class="fhint">（依目前排序，點表頭換排序）</span></div></div>`;
+  $("#fbar").innerHTML=`<div class="fhead"><b>🔎 結果內篩選</b><span class="fhint">在這次查到的資料裡再挑，圖、表、匯出都跟著變</span>
+      <span class="fcount" id="fcount"></span><button class="fbtn" id="fClr">清除篩選</button><button class="fbtn" id="fTog">${wasClosed?"展開 ▼":"收合 ▲"}</button></div>
+    <div class="fchips" id="fchips"></div>
+    <div class="fbody">${body}</div>`;
+  if(wasClosed) $("#fbar").classList.add("closed");
+  bindFilterBar(); renderConds(); syncMonths();
+}
+function syncMonths(){ const el=$("#fMon"); if(!el) return; el.querySelectorAll("button").forEach(b=>b.classList.toggle("on",F.months.includes(+b.dataset.m))); }
+function renderConds(){
+  const R=RES, box=$("#fConds");
+  const colOpts=(R.numCols.length>1?[["any","任一系列"],["all","全部系列"]]:[]).concat(R.numCols.map(i=>[String(i),R.head[i]]));
+  box.innerHTML=F.conds.length? F.conds.map((c,k)=>{ const noVal=c.op==="null"||c.op==="notnull";
+    return `<div class="cond" data-k="${k}">
+      <select data-f="col">${colOpts.map(([v,l])=>`<option value="${v}" ${String(c.col)===v?"selected":""}>${esc(l)}</option>`).join("")}</select>
+      <select data-f="op">${OPS.map(([v,l])=>`<option value="${v}" ${c.op===v?"selected":""}>${l}</option>`).join("")}</select>
+      <input data-f="a" type="number" step="any" placeholder="數值" value="${esc(c.a)}" ${noVal?"hidden":""}>
+      <span ${c.op==="between"?"":"hidden"}>～</span><input data-f="b" type="number" step="any" placeholder="數值" value="${esc(c.b)}" ${c.op==="between"?"":"hidden"}>
+      <span class="fhint" ${noVal?"hidden":""}>${esc(R.elem.unit)}</span>
+      <button class="x" data-del title="刪除這個條件">×</button></div>`; }).join("")
+    : `<span class="fhint">例如「雨量 ≥ 50」、「最高溫 介於 30～35」</span>`;
+  box.querySelectorAll(".cond").forEach(row=>{ const k=+row.dataset.k;
+    row.querySelectorAll("[data-f]").forEach(inp=>{
+      const ev=inp.tagName==="SELECT"?"change":"input";
+      inp.addEventListener(ev,()=>{ F.conds[k][inp.dataset.f]=inp.value;
+        if(inp.dataset.f==="op"){ renderConds(); const a=$(`#fConds .cond[data-k="${k}"] [data-f="a"]`); a&&!a.hidden&&a.focus(); refresh(); }
+        else if(ev==="input") refreshSoon(); else refresh(); });
+    });
+    row.querySelector("[data-del]").onclick=()=>{ F.conds.splice(k,1); renderConds(); refresh(); };
+  });
+}
+function bindFilterBar(){
+  const R=RES;
+  $("#fTog").onclick=()=>{ const b=$("#fbar"); b.classList.toggle("closed"); $("#fTog").textContent=b.classList.contains("closed")?"展開 ▼":"收合 ▲"; };
+  $("#fClr").onclick=()=>{ F=newFilter(); renderFilterBar(); refresh(); };
+  const fd=$("#fDate");
+  if(fd&&window.flatpickr&&R.rows.length){
+    const keys=R.rows.map(r=>String(r[0])).sort();
+    const mn=R.keyKind==="month"?keys[0]+"-01":keys[0].slice(0,10), mx=R.keyKind==="month"?lastDayOf(keys[keys.length-1]):keys[keys.length-1].slice(0,10);
+    const fp=flatpickr(fd,{mode:"range",locale:"zh",dateFormat:"Y-m-d",minDate:mn,maxDate:mx,
+      defaultDate:(F.from&&F.to)?[F.from,F.to]:null,
+      onChange:d=>{ if(d.length===2){ F.from=fmtD(d[0]); F.to=fmtD(d[1]); refresh(); } }});
+    $("#fDateX").onclick=()=>{ fp.clear(); F.from=F.to=""; refresh(); };
+  }
+  if($("#fMon")) $("#fMon").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; const m=+b.dataset.m, i=F.months.indexOf(m);
+    if(i>=0) F.months.splice(i,1); else F.months.push(m); F.months.sort((a,b)=>a-b); syncMonths(); refresh(); };
+  if($("#fSea")) $("#fSea").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; const ms=b.dataset.s.split(",").map(Number).sort((a,b)=>a-b);
+    F.months = F.months.join()===ms.join() ? [] : ms; syncMonths(); refresh(); };
+  if($("#fHF")) $("#fHF").onchange=e=>{ F.hFrom=e.target.value; refresh(); };
+  if($("#fHT")) $("#fHT").onchange=e=>{ F.hTo=e.target.value; refresh(); };
+  if($("#fTxt")) $("#fTxt").oninput=e=>{ F.text=e.target.value; refreshSoon(); };
+  if($("#fCat")) $("#fCat").onchange=e=>{ F.cat=e.target.value; refresh(); };
+  $("#fLim").oninput=e=>{ F.limit=e.target.value; refreshSoon(); };
+  $("#fAdd").onclick=()=>{ F.conds.push({col:R.numCols.length>1?"any":String(R.numCols[0]),op:">=",a:"",b:""}); renderConds();
+    const ins=$("#fConds").querySelectorAll('[data-f="a"]'); ins[ins.length-1]&&ins[ins.length-1].focus(); };
+  $("#fQuick").onclick=e=>{ const b=e.target.closest("button"); if(!b) return; const q=quickList()[+b.dataset.i];
+    if(q.c){ F.conds.push({...q.c,b:""}); renderConds(); }
+    if(q.sort){ F.sort=R.numCols[0]; F.dir=q.sort; F.limit="10"; $("#fLim").value="10";
+      if(R.numCols.length>1) toast(`依「${R.head[R.numCols[0]]}」排序，要換欄位請點表頭`); }
+    refresh(); };
+}
+// 可排序表格：點表頭 大→小 → 小→大 → 取消
+// 可排序表格：點表頭 大→小 → 小→大 → 取消；點列＝選取
+function tableHtml(head,rows,opt){
+  opt=opt||{}; const MAX=3000, shown=rows.length>MAX?rows.slice(0,MAX):rows;
+  const idCol=RES&&(RES.kind==="rank"||RES.kind==="disasterArea")?2:-1;
+  // 資料橫條（像 Power BI 的條件式格式）：每欄以該欄最大絕對值為滿格
+  const bmax={}; for(const i of opt.bars||[]) bmax[i]=Math.max(0,...shown.map(r=>typeof r[i]==="number"?Math.abs(r[i]):0));
+  const th=head.map((h,i)=>`<th data-c="${i}" class="srt${F.sort===i?" on":""}" title="點一下排序">${esc(h)}${F.sort===i?(F.dir>0?" ▲":" ▼"):""}</th>`).join("");
+  const tb=shown.map(r=>`<tr${rowAttr(r[0],idCol>=0?r[idCol]:"")}>${r.map((c,i)=>{ const empty=c===""||c==null;
+    const cls=opt.wet&&opt.wet.includes(i)&&typeof c==="number"&&c>0?"wet":"";
+    const bar=bmax[i]&&typeof c==="number"?` style="background:linear-gradient(90deg,rgba(56,189,248,.22) ${(Math.abs(c)/bmax[i]*100).toFixed(1)}%,transparent 0)"`:"";
+    return `<td class="${cls}"${bar}>${empty?"–":(opt.fmt?opt.fmt(i,c,r):esc(c))}</td>`; }).join("")}</tr>`).join("");
+  return `<div class="tablebox"><table><thead><tr>${th}</tr></thead><tbody>${tb||`<tr><td colspan="${head.length}" class="nores">沒有符合篩選條件的資料，放寬條件或按「清除篩選」</td></tr>`}</tbody></table></div>`+
+    (rows.length>MAX?`<div class="meta">表格只顯示前 ${MAX} 筆；匯出 Excel / CSV 會包含全部 ${rows.length} 筆。</div>`:"");
+}
+function bindSort(scope){ scope.querySelectorAll("th.srt").forEach(th=>th.onclick=()=>{ const i=+th.dataset.c;
+  if(F.sort!==i){ F.sort=i; F.dir=i===0?1:-1; } else if(F.dir===(i===0?1:-1)) F.dir=-F.dir; else { F.sort=null; F.dir=-1; }
+  refresh(); }); }
+function filterDesc(){
+  if(!RES) return "";
+  const p=[], R=RES;
+  if(F.from||F.to) p.push(`日期 ${F.from||"…"}~${F.to||"…"}`);
+  if(F.months.length) p.push(`月份 ${F.months.join("、")} 月`);
+  if(F.hFrom!==""||F.hTo!=="") p.push(`時段 ${F.hFrom||0}~${F.hTo===""?23:F.hTo} 點`);
+  if(F.cat) p.push(`${R.catLabel}：${F.cat==="__any"?"任一達標":F.cat}`);
+  if(F.text.trim()) p.push(`搜尋「${F.text.trim()}」`);
+  for(const c of F.conds){ const col=c.col==="any"?"任一系列":c.col==="all"?"全部系列":R.head[+c.col], op=OPS.find(o=>o[0]===c.op);
+    p.push(`${col} ${op?op[1]:c.op}${c.op==="null"||c.op==="notnull"?"":" "+c.a+(c.op==="between"?"~"+c.b:"")}`); }
+  if(F.sort!=null) p.push(`依「${R.head[F.sort]}」${F.dir>0?"小→大":"大→小"}排序`);
+  if(parseInt(F.limit)>0) p.push(`只取前 ${F.limit} 筆`);
+  if(F.pick.length) p.push(`只含選取的 ${F.pick.length} 項`);
+  return p.join("；");
 }
 
 /* ---------------- 分享連結 / 圖片匯出 / 提示 ---------------- */
 function toast(msg){ let t=$("#toast");
   if(!t){ t=document.createElement("div"); t.id="toast";
-    t.style.cssText="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#0ea5e9;color:#fff;padding:10px 20px;border-radius:10px;z-index:9999;font-size:14px;box-shadow:0 8px 28px rgba(0,0,0,.45);transition:opacity .3s;opacity:0";
+    t.style.cssText="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#0ea5e9;color:#fff;padding:10px 20px;border-radius:10px;z-index:9999;font-size:14px;box-shadow:0 8px 28px rgba(0,0,0,.45);transition:opacity .3s;opacity:0;pointer-events:none";
     document.body.appendChild(t); }
-  t.textContent=msg; t.style.opacity="1"; clearTimeout(t._h); t._h=setTimeout(()=>t.style.opacity="0",1900); }
+  t.textContent=msg; t.style.opacity="1"; clearTimeout(t._h); t._h=setTimeout(()=>t.style.opacity="0",2200); }
 function buildShareUrl(){
   const p=new URLSearchParams();
   p.set("m",mode); p.set("g",gran); p.set("e",String(ELEMS.indexOf(curElem)));
@@ -759,22 +1479,22 @@ function buildShareUrl(){
   else if(mode==="period"){ if(G.period.station)p.set("st",G.period.station.id); p.set("pd",G.period.periods.map(x=>x.start+"~"+x.end).join(",")); }
   else if(mode==="disaster"){ if(G.disaster.station)p.set("st",G.disaster.station.id); p.set("s",G.disaster.start); p.set("t",G.disaster.end); }
   else if(mode==="rank"){ p.set("c",G.rank.county); p.set("s",G.rank.start); p.set("t",G.rank.end); }
-  return location.origin+location.pathname+"#"+p.toString();
+  if(RES&&RES.mode===mode&&(filterActive()||F.sort!=null)) p.set("f",JSON.stringify(F));   // 連篩選條件一起分享
+  return location.origin+location.pathname+location.search+"#"+p.toString();
 }
 function applyShareUrl(){
   if(!location.hash||location.hash.length<2) return false;
   const p=new URLSearchParams(location.hash.slice(1));
-  const m=p.get("m"); if(!m) return false;
-  mode=m; gran=p.get("g")||"day";
-  const ei=+p.get("e"); if(ei>=0&&ei<ELEMS.length){ curElem=ELEMS[ei]; if($("#elem"))$("#elem").value=ei; }
-  [...$("#mode").children].forEach(b=>b.classList.toggle("on",b.dataset.m===mode));
-  [...$("#gran").children].forEach(b=>b.classList.toggle("on",b.dataset.g===gran));
+  const m=p.get("m"); if(!m||!G[m]) return false;
+  mode=m; gran=["day","month","hour"].includes(p.get("g"))?p.get("g"):"day";
+  const ei=+p.get("e"); if(ei>=0&&ei<ELEMS.length) curElem=ELEMS[ei];
   const stId=p.get("st"), mk=id=>({id,name:byId[id].name,county:byId[id].county});
   if(m==="multi"){ G.multi.stations=(stId?stId.split(","):[]).filter(id=>byId[id]).map(mk); if(p.get("s"))G.multi.start=p.get("s"); if(p.get("t"))G.multi.end=p.get("t"); }
   else if(m==="year"){ if(stId&&byId[stId])G.year.station=mk(stId); if(p.get("ts"))G.year.tmplS=p.get("ts"); if(p.get("te"))G.year.tmplE=p.get("te"); if(p.get("yr"))G.year.years=p.get("yr").split(",").map(Number).filter(Boolean); }
   else if(m==="period"){ if(stId&&byId[stId])G.period.station=mk(stId); if(p.get("pd"))G.period.periods=p.get("pd").split(",").filter(Boolean).map(x=>{const[a,b]=x.split("~");return{start:a,end:b};}); }
   else if(m==="disaster"){ if(stId&&byId[stId])G.disaster.station=mk(stId); if(p.get("s"))G.disaster.start=p.get("s"); if(p.get("t"))G.disaster.end=p.get("t"); }
   else if(m==="rank"){ G.rank.county=p.get("c")||""; if(p.get("s"))G.rank.start=p.get("s"); if(p.get("t"))G.rank.end=p.get("t"); }
+  const f=p.get("f"); if(f){ try{ const o=JSON.parse(f); if(o&&typeof o==="object") pendingF={...newFilter(),...o,months:Array.isArray(o.months)?o.months.map(Number):[],conds:Array.isArray(o.conds)?o.conds:[]}; }catch(e){} }
   return true;
 }
 function exportPng(){
@@ -785,27 +1505,30 @@ function exportPng(){
   ctx.fillStyle=(getComputedStyle(document.body).getPropertyValue("--panel")||"#1e293b").trim();
   ctx.fillRect(0,0,tmp.width,tmp.height); ctx.drawImage(src,0,0);
   const a=document.createElement("a"); a.href=tmp.toDataURL("image/png");
-  a.download=`${curElem.name}_${gran}_${new Date().toISOString().slice(0,10)}.png`; a.click();
+  a.download=`${RES?RES.elem.name:curElem.name}_${gran}_${todayStr()}.png`; a.click();
   toast("🖼 圖片已下載");
 }
 function wireExtras(){
   $("#share").onclick=async()=>{ const url=buildShareUrl();
-    try{ await navigator.clipboard.writeText(url); toast("🔗 分享連結已複製，貼給別人即可看到同一張圖"); }
+    try{ await navigator.clipboard.writeText(url); toast("🔗 分享連結已複製（含篩選條件），貼給別人即可看到同一張圖"); }
     catch(e){ prompt("複製這個分享連結：",url); } };
   $("#png").onclick=exportPng;
 }
 
-/* ---------------- 匯出 ---------------- */
-function aoa(){ const {data,head,rows}=lastRender;
-  const meta=[`${curElem.name}(${curElem.unit})對比`,...data.map(d=>`${d.sp.name}(${d.sp.id}) ${d.sp.start}~${d.sp.end}`)];
-  return [meta,head,...rows.map(r=>r.map(c=>c===""?null:c))]; }
+/* ---------------- 匯出（都是篩選後的資料） ---------------- */
+function aoa(){ const fd=filterDesc(), out=[RES.meta];
+  if(fd) out.push(["篩選："+fd]);
+  out.push(RES.head, ...VIEW.map(r=>r.map(c=>c===""?null:c)));
+  return out; }
 function exportXlsx(){ const ws=XLSX.utils.aoa_to_sheet(aoa());const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,curElem.name);
-  XLSX.writeFile(wb,`${curElem.name}對比_${gran}_${new Date().toISOString().slice(0,10)}.xlsx`); }
-function exportCsv(){ const {head,rows}=lastRender;
-  const csv=[head.join(","),...rows.map(r=>r.join(","))].join("\n");
+  XLSX.utils.book_append_sheet(wb,ws,RES.elem.name);
+  XLSX.writeFile(wb,`${RES.elem.name}對比_${RES.gran}${filterActive()?"_篩選":""}_${todayStr()}.xlsx`);
+  toast(`⬇ 已匯出 ${VIEW.length} 筆${filterActive()?"（篩選後）":""}`); }
+function exportCsv(){
+  const q=c=>{ c=c==null?"":String(c); return /[",\n]/.test(c)?`"${c.replace(/"/g,'""')}"`:c; };
+  const csv=[RES.head.map(q).join(","),...VIEW.map(r=>r.map(q).join(","))].join("\n");
   const b=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`${curElem.name}對比_${gran}.csv`;a.click(); }
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`${RES.elem.name}對比_${RES.gran}${filterActive()?"_篩選":""}.csv`;a.click(); }
 
 boot();
 </script>
