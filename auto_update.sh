@@ -19,7 +19,7 @@ if [ ! -d "$PUB/.git" ]; then
   git clone -q --depth 1 git@github.com:giont565/tw-rainfall.git "$PUB" || { echo "!! clone 失敗"; exit 1; }
 fi
 cd "$PUB" || exit 1
-git pull -q --rebase || echo "!! pull 失敗（繼續用本地版）"
+git fetch -q origin && git reset -q --hard origin/main || echo "!! 取 GitHub 最新版失敗（繼續用本地版）"   # 公開副本只當鏡像，先完全對齊
 cp "$PROJ/web/index.html" index.html
 for f in fetch.py fetch_aqi.py auto_update.sh; do
   [ -f "$PROJ/$f" ] && cp "$PROJ/$f" .
